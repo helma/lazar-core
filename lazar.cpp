@@ -56,10 +56,8 @@ int main(int argc, char *argv[], char *envp[]) {
   int port = 0;
   string smiles;
 
-  Predictor<OBLazMol,ClassFeat,bool> * train_set_c = NULL;
-  auto_ptr< Predictor<OBLazMol,ClassFeat,bool> > a_train_set_c(train_set_c);
-  Predictor<OBLazMol,RegrFeat,float> * train_set_r = NULL;
-  auto_ptr< Predictor<OBLazMol,RegrFeat,float> > a_train_set_r(train_set_r);
+  auto_ptr< Predictor<OBLazMol,ClassFeat,bool> > train_set_c(NULL);
+  auto_ptr< Predictor<OBLazMol,RegrFeat,float> > train_set_r(NULL);
 
 
   // argument parsing
@@ -165,11 +163,11 @@ int main(int argc, char *argv[], char *envp[]) {
     if (loo) {            // LOO crossvalidation
       out->print();
       if (!quantitative) {
-        train_set_c = new Predictor<OBLazMol,ClassFeat,bool>(smi_file, train_file, feature_file, out);
+        train_set_c.reset( new Predictor<OBLazMol,ClassFeat,bool>(smi_file, train_file, feature_file, out) );
         train_set_c->loo_predict();
       }
       else {
-        train_set_r = new Predictor<OBLazMol,RegrFeat,float>(smi_file, train_file, feature_file, out);
+        train_set_r.reset( new Predictor<OBLazMol,RegrFeat,float>(smi_file, train_file, feature_file, out) );
         train_set_r->loo_predict();
       }
       out->print();
@@ -183,11 +181,11 @@ int main(int argc, char *argv[], char *envp[]) {
         optind++;
         out->print();
         if (!quantitative) {
-          train_set_c = new Predictor<OBLazMol,ClassFeat,bool>(smi_file, train_file, feature_file, alphabet_file,out);
+          train_set_c.reset ( new Predictor<OBLazMol,ClassFeat,bool>(smi_file, train_file, feature_file, alphabet_file,out) );
           train_set_c->predict_smi(smiles); // AM: start SMILES -> predictor.h
         }
         else {
-          train_set_r = new Predictor<OBLazMol,RegrFeat,float>(smi_file, train_file, feature_file, alphabet_file,out);
+          train_set_r.reset ( new Predictor<OBLazMol,RegrFeat,float>(smi_file, train_file, feature_file, alphabet_file,out) );
           train_set_r->predict_smi(smiles); // AM: start SMILES -> predictor.h
         }
       }
@@ -195,11 +193,11 @@ int main(int argc, char *argv[], char *envp[]) {
       else {            // read input file batch predictions
         out->print();
         if (!quantitative) {
-          train_set_c = new Predictor<OBLazMol,ClassFeat,bool>(smi_file, train_file, feature_file, alphabet_file, input_file, out);
+          train_set_c.reset( new Predictor<OBLazMol,ClassFeat,bool>(smi_file, train_file, feature_file, alphabet_file, input_file, out) );
           train_set_c->predict_ext(); // AM: start SMILES -> predictor.h
         }
         else {
-          train_set_r = new Predictor<OBLazMol,RegrFeat,float>(smi_file, train_file, feature_file, alphabet_file, input_file, out);
+          train_set_r.reset ( new Predictor<OBLazMol,RegrFeat,float>(smi_file, train_file, feature_file, alphabet_file, input_file, out) );
           train_set_r->predict_ext(); // AM: start SMILES -> predictor.h
         }
         out->print();
@@ -219,8 +217,8 @@ int main(int argc, char *argv[], char *envp[]) {
     sid = setsid();         // start child and store child id
     if (sid < 0) exit(EXIT_FAILURE);
 
-    if (!quantitative) train_set_c = new Predictor<OBLazMol,ClassFeat,bool>(smi_file, train_file, feature_file, alphabet_file, out);
-      else train_set_r = new Predictor<OBLazMol,RegrFeat,float>(smi_file, train_file, feature_file, alphabet_file, out);
+    if (!quantitative) train_set_c.reset( new Predictor<OBLazMol,ClassFeat,bool>(smi_file, train_file, feature_file, alphabet_file, out) );
+      else train_set_r.reset( new Predictor<OBLazMol,RegrFeat,float>(smi_file, train_file, feature_file, alphabet_file, out) );
 
     string tmp;
     signal(SIGTERM, shutdown);

@@ -64,14 +64,11 @@ int main(int argc, char *argv[]) {
 		return(status);
 	}
 
-	OBLazMolVect * structures = new OBLazMolVect(structure_file, out);
-
-	FeatGen<OBLazMol,OBLinFrag,bool> * fragments = new FeatGen<OBLazMol,OBLinFrag,bool>(alphabet_file,structures, out);
+	auto_ptr<OBLazMolVect> structures (new OBLazMolVect(structure_file, out));
+	auto_ptr<FeatGen<OBLazMol,OBLinFrag,bool> > fragments ( new FeatGen<OBLazMol,OBLinFrag,bool>(alphabet_file,structures.get(), out) );
 
 	fragments->generate_linfrag();
 
-	delete fragments;
-	delete structures;
 	return (0);
 
 }

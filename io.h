@@ -46,7 +46,7 @@ class ConsoleOut: public Out {
 class SocketOut: public Out {
 
 	private:
-		ServerSocket * socket;
+		auto_ptr<ServerSocket> socket;
 		
 	public:
 		SocketOut(ServerSocket * socket): socket(socket) {} ;

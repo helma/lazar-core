@@ -39,10 +39,15 @@ class MolVect {
 	private:
 
 		vector<MolRef> compounds;
-		Out * out;
+		Out* out;
 
 	public:
 
+        ~MolVect() {
+            for (unsigned int i=0; i<compounds.size(); i++) {
+                delete compounds[i];
+            }
+        }
 		MolVect() {};
 
 		//! MolVect constructor: reads SMILES from file (called by FeatMolVect())
@@ -66,7 +71,7 @@ class MolVect {
 		vector<MolRef> remove_duplicates(MolRef test_comp);
 
 		//! Get Neighbors by using at least five compounds if any neighbors available
-		vector<MolRef> get_neighbors(string act);
+		void get_neighbors(string act, vector<MolRef>* neighbors);
 
 		vector<MolRef> get_compounds() { return(compounds); };
 
@@ -216,11 +221,10 @@ void MolVect<MolType, FeatureType, ActivityType>::relevant_features(MolRef test,
 };
 
 template <class MolType, class FeatureType, class ActivityType>
-vector<FeatMol < MolType, FeatureType, ActivityType > * >  MolVect<MolType, FeatureType, ActivityType>::get_neighbors(string act) {
+void MolVect<MolType, FeatureType, ActivityType>::get_neighbors(string act, vector<MolRef>* neighbors) {
 
-	vector<MolRef> neighbors;
 	typename vector<MolRef>::iterator cur_mol;
-	neighbors.clear();
+	neighbors->clear();
 
 
     multimap<float,MolRef> sim_sorted_neighbors;
@@ -238,7 +242,7 @@ vector<FeatMol < MolType, FeatureType, ActivityType > * >  MolVect<MolType, Feat
     cur_sn--;
     while ((cur_sn != sim_sorted_neighbors.begin()) && (cur_sn->second->get_similarity()>0.3)) {
         if (cur_sn->second->is_available(act)) {
-            neighbors.push_back(cur_sn->second);
+            neighbors->push_back(cur_sn->second);
         }
         cur_sn--;
     }
@@ -247,50 +251,49 @@ vector<FeatMol < MolType, FeatureType, ActivityType > * >  MolVect<MolType, Feat
     unsigned int min_n = 5;
     if (!quantitative) min_n=5;
 
-    if ((cur_sn != sim_sorted_neighbors.begin()) && (neighbors.size() < min_n) && (neighbors.size() > 0)) {
+    if ((cur_sn != sim_sorted_neighbors.begin()) && (neighbors->size() < min_n) && (neighbors->size() > 0)) {
         do {
             if (cur_sn->second->is_available(act)) {
-                neighbors.push_back(cur_sn->second);
+                neighbors->push_back(cur_sn->second);
             }
             cur_sn--;
-        } while ((neighbors.size() < min_n) && (cur_sn != sim_sorted_neighbors.begin()));
+        } while ((neighbors->size() < min_n) && (cur_sn != sim_sorted_neighbors.begin()));
     }
     // *                                                             *
 
-	return(neighbors);
 };
 
 
 template <class MolType, class FeatureType, class ActivityType>
 void MolVect<MolType, FeatureType, ActivityType>::determine_unknown(string act, MolRef test) {
 
-			vector<Feature<FeatureType> *> feats = test->get_features();
-			typename vector<Feature<FeatureType> *>::iterator cur_feat;
-			bool act_m;
-			vector<int> matches;
-			vector<int>::iterator cur_m;
+    vector<Feature<FeatureType> *> feats = test->get_features();
+    typename vector<Feature<FeatureType> *>::iterator cur_feat;
+    bool act_m;
+    vector<int> matches;
+    vector<int>::iterator cur_m;
 
-			test->delete_unknown();
-			//test->delete_infrequent();
+    test->delete_unknown();
+    //test->delete_infrequent();
 
-			for (cur_feat=feats.begin();cur_feat!=feats.end();cur_feat++) {
+    for (cur_feat=feats.begin();cur_feat!=feats.end();cur_feat++) {
 
-				// find features without activity values for the current activity
-				act_m = false;
-				matches = (*cur_feat)->get_matches();
-				for (cur_m=matches.begin();cur_m!=matches.end();cur_m++) {
-					if (compounds[*cur_m]->is_available(act)) {
-						act_m = true;
-						break;
-					}
-				}
+        // find features without activity values for the current activity
+        act_m = false;
+        matches = (*cur_feat)->get_matches();
+        for (cur_m=matches.begin();cur_m!=matches.end();cur_m++) {
+            if (compounds[*cur_m]->is_available(act)) {
+                act_m = true;
+                break;
+            }
+        }
 
-				if ( !act_m || (*cur_feat)->get_too_infrequent(act) )
-					test->add_unknown((*cur_feat)->get_name());
+        if ( !act_m || (*cur_feat)->get_too_infrequent(act) )
+            test->add_unknown((*cur_feat)->get_name());
 
-			}
+    }
 
-		};
+};
 
 template <class MolType, class FeatureType, class ActivityType>
 vector<string>  MolVect<MolType, FeatureType, ActivityType>::get_idfromsmi(string smi) {

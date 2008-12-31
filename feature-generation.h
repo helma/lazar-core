@@ -26,6 +26,7 @@
 #include <openbabel/groupcontrib.h>
 #include <openbabel/obconversion.h>
 #include <unistd.h>
+#include <memory>
 
 using namespace std;
 using namespace OpenBabel;
@@ -42,13 +43,25 @@ class FeatGen {
 
 	private:
 
-		MolVect< MolType, FeatureType, ActivityType > * structures;
+		auto_ptr<MolVect< MolType, FeatureType, ActivityType > > structures;
 		vector<OBLinFragRef> alphabet;
 		vector<OBLinFragRef> level;
 		vector<OBLinFragRef> next_level;
 		Out * out;
 
 	public:
+
+        ~FeatGen() {
+            for (unsigned int i=0; i<alphabet.size(); i++) {
+                delete alphabet[i];
+            }
+            for (unsigned int i=0; i<level.size(); i++) {
+                delete level[i];
+            }
+            for (unsigned int i=0; i<next_level.size(); i++) {
+                delete next_level[i];
+            }
+        }
 
 		FeatGen< MolType, FeatureType, ActivityType >(MolVect< MolType, FeatureType, ActivityType > * s, Out * out): structures(s), out(out) { };
 
@@ -75,9 +88,6 @@ class FeatGen {
 		//! Prints testset for a fold, i.e. non-random consecutive.
 		void generate_testset(int p, int pos, Out* out);
 
-		//! generate physicochemical properties
-		void generate_pcprop(Out* out);
-		
 		//! generate rex fragments
 		void generate_rex(int max_l);
 
@@ -214,31 +224,6 @@ void FeatGen<MolType, FeatureType, ActivityType>::generate_testset(int p, int po
 	out->print();
 };
 
-
-//! Prints physicochemical properties in the form id \t molweight \t logP \t psa \t mr
-/* FIX for OpenBabel 2.2
-template <class MolType, class FeatureType, class ActivityType>
-void FeatGen<MolType, FeatureType, ActivityType>::generate_pcprop(Out* out) {
-
-	typename vector<MolRef>::iterator structure_it;
-	vector<MolRef> s = structures->get_compounds();
-	
-	for (structure_it = s.begin(); structure_it!=s.end(); structure_it++) {
-		*out << (*structure_it)->get_id() << "\t";
-		OBMol* mol;
-		mol = (*structure_it)->get_mol_ref();
-		*out << mol->GetMolWt() << "\t";
-		OBLogP logP;
-		OBPSA psa;
-		OBMR mr;
-		*out << logP.Predict(*mol) << "\t";
-		*out << psa.Predict(*mol) << "\t";
-		*out << mr.Predict(*mol) << "\t" << endl;
-		out->print();
-	}
-
-};
-*/
 
 
 template <class MolType, class FeatureType, class ActivityType>

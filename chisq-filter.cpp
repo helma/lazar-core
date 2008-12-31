@@ -85,8 +85,7 @@ int main(int argc, char *argv[]) {
 		return(status);
 	}
 	
-	ActMolVect<OBLazMol,ClassFeat,bool> * train_set;
-	train_set = new ActMolVect<OBLazMol,ClassFeat,bool>(train_file,feature_file,smi_file,out);
+	auto_ptr <ActMolVect<OBLazMol,ClassFeat,bool> > train_set ( new ActMolVect<OBLazMol,ClassFeat,bool>(train_file,feature_file,smi_file,out) );
 
 	if (print_all)
 		train_set->print_sorted_features(limit,smarts);

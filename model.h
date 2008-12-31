@@ -17,7 +17,6 @@
 */
 #include <math.h>
 #include "io.h"
-#include "stats.h"
 #include <sstream>
 #include <iostream>
 #include <iomanip>

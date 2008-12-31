@@ -109,7 +109,6 @@ class FeatMol: public MolType {
 	private:
 
 		FeatVect features;
-
 		FeatVect pred_features;
 		FeatVect common_feat;
 		FeatVect sig_pred;
@@ -131,6 +130,23 @@ class FeatMol: public MolType {
 
 	public:
 
+        ~FeatMol() {
+            for (unsigned int i=0; i<features.size(); i++) {
+                delete features[i];
+            }
+            for (unsigned int i=0; i<pred_features.size(); i++) {
+                delete pred_features[i];
+            }
+            for (unsigned int i=0; i<common_feat.size(); i++) {
+                delete common_feat[i];
+            }
+            for (unsigned int i=0; i<sig_pred.size(); i++) {
+                delete sig_pred[i];
+            }
+            for (unsigned int i=0; i<sig_common.size(); i++) {
+                delete sig_common[i];
+            }
+        }
 		FeatMol(int nr): MolType(nr), similarity(0) {};
 		FeatMol(int i, string id, string smi): MolType(i, id, smi), similarity(0) {};
 		FeatMol(int i, string id, string smi, Out * out): MolType(i, id, smi, out), similarity(0), out(out) {};

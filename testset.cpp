@@ -75,8 +75,8 @@ int main(int argc, char *argv[]) {
 		return(status);
 	}
 
-	OBLazMolVect * structures = new OBLazMolVect(structure_file, out);
-	FeatGen<OBLazMol,OBLinFrag,bool> * testset = new FeatGen<OBLazMol,OBLinFrag,bool>(structures, out);
+	auto_ptr<OBLazMolVect> structures ( new OBLazMolVect(structure_file, out) );
+	auto_ptr<FeatGen<OBLazMol,OBLinFrag,bool> > testset ( new FeatGen<OBLazMol,OBLinFrag,bool>(structures.get(), out) );
 
 	if (!i_set)
 		testset->generate_testset(percentage,  out);
@@ -84,8 +84,6 @@ int main(int argc, char *argv[]) {
 		testset->generate_testset(percentage, i, out);    
 	}
 
-	delete structures;
-	delete testset;
 	return (0);
 
 }

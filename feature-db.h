@@ -19,7 +19,6 @@
 
 
 #include "lazmolvect.h"
-#include <memory>
 
 #ifndef F_DB_H
 #define F_DB_H
@@ -34,7 +33,6 @@ class FeatMolVect: public MolVect<MolType,FeatureType,ActivityType> {
 
 		typedef FeatMol < MolType, FeatureType, ActivityType > * MolRef ;
 		typedef Feature<FeatureType> * FeatRef;
-		typedef Feature<FeatureType> Feat;
 
 	private:
 
@@ -77,10 +75,7 @@ FeatMolVect<MolType, FeatureType, ActivityType>::FeatMolVect(char * feat_file, c
 	string line;
 	string tmp_field;
 	int line_nr =1;
-
-    
 	FeatRef feat_ptr;
-    auto_ptr< Feat > a_feat_ptr(feat_ptr);
 
 	*out << "Reading features from " << feat_file << endl;
 	out->print_err();
