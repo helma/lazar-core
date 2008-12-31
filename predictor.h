@@ -22,6 +22,7 @@
 #include "activity-db.h"
 #include "model.h"
 #include "time.h"
+#include <memory>
 
 using namespace std;
 using namespace OpenBabel;
@@ -42,7 +43,7 @@ class Predictor {
 	private:
 
 		//! feature generation for new structures
-		FeatGen <MolType, FeatureType, ActivityType> * feat_gen;
+		auto_ptr<FeatGen <MolType, FeatureType, ActivityType> > feat_gen;
 		//! training structures
 		ActMolVect <MolType, FeatureType, ActivityType> * train_structures;
 		//! test structures for batch predictions
@@ -134,7 +135,7 @@ void Predictor<MolType, FeatureType, ActivityType>::predict_ext() {
 
 		for (int n = 0; n < test_size; n++) {
 			cur_mol = test_structures->get_compound(n);
-			delete feat_gen;
+			//delete feat_gen;
 
 			vector<MolRef> duplicates = train_structures->remove_duplicates(cur_mol);
 			if (duplicates.size()) {
@@ -146,9 +147,9 @@ void Predictor<MolType, FeatureType, ActivityType>::predict_ext() {
 
 		for (int n = 0; n < test_size; n++) {
 			cur_mol = test_structures->get_compound(n);
-			delete feat_gen;
-			feat_gen = new FeatGen <MolType, FeatureType, ActivityType>(a_file, train_structures, cur_mol,out);
-//			feat_gen->generate_linfrag(train_structures,cur_mol);
+			//delete feat_gen;
+			feat_gen.reset(new FeatGen <MolType, FeatureType, ActivityType>(a_file, train_structures, cur_mol,out));
+			feat_gen->generate_linfrag(train_structures,cur_mol);
 
 			*out << "Predicting external test id " << cur_mol->get_id() << endl;
 			out->print_err();
@@ -175,9 +176,9 @@ void Predictor<MolType, FeatureType, ActivityType>::predict_file() {
 		for (int n = 0; n < test_size; n++) {
 
 			cur_mol = test_structures->get_compound(n);
-			delete feat_gen;
-			feat_gen = new FeatGen <MolType, FeatureType, ActivityType>(a_file, train_structures, cur_mol,out);
-//			feat_gen->generate_linfrag(train_structures,cur_mol);
+			//delete feat_gen;
+			feat_gen.reset(new FeatGen <MolType, FeatureType, ActivityType>(a_file, train_structures, cur_mol,out));
+			feat_gen->generate_linfrag(train_structures,cur_mol);
 
 			//cur_mol->print();
 
@@ -346,14 +347,15 @@ void Predictor<MolType, FeatureType, ActivityType>::predict_smi(string smiles) {
 		typename vector<MolRef>::iterator cur_dup;
 
 		MolRef cur_mol = new FeatMol<MolType, FeatureType, ActivityType>(0,"test structure",smiles,out);
+        auto_ptr<FeatMol <MolType, FeatureType, ActivityType> > a_cur_mol (cur_mol);
 
 		*out << "Looking for " << cur_mol->get_smiles() << " in the training set\n";
 		out->print_err();
 		duplicates = train_structures->remove_duplicates(cur_mol);
 
-		delete feat_gen;
-		feat_gen = new FeatGen <MolType, FeatureType, ActivityType>(a_file, train_structures, cur_mol,out);
-//		feat_gen->generate_linfrag(train_structures,cur_mol);
+		//delete feat_gen;
+        feat_gen.reset(new FeatGen <MolType, FeatureType, ActivityType>(a_file, train_structures, cur_mol,out));
+		feat_gen->generate_linfrag(train_structures,cur_mol);
 
 		if (duplicates.size() > 1) {
 			*out << int(duplicates.size()) << " instances of " << cur_mol->get_smiles() << " in the training set!\n";

@@ -21,6 +21,7 @@
 #include "predictor.h"
 #include <getopt.h>
 #include "rutils.h"
+#include <memory>
 
 using namespace std;
 
@@ -52,12 +53,13 @@ int main(int argc, char *argv[], char *envp[]) {
   char* alphabet_file = NULL;
   char* input_file = NULL;
 
-  Out * out;  // dummy output object
   int port = 0;
   string smiles;
 
   Predictor<OBLazMol,ClassFeat,bool> * train_set_c = NULL;
+  auto_ptr< Predictor<OBLazMol,ClassFeat,bool> > a_train_set_c(train_set_c);
   Predictor<OBLazMol,RegrFeat,float> * train_set_r = NULL;
+  auto_ptr< Predictor<OBLazMol,RegrFeat,float> > a_train_set_r(train_set_r);
 
 
   // argument parsing
@@ -139,7 +141,8 @@ int main(int argc, char *argv[], char *envp[]) {
     return(status);
   }
 
-  out = new ConsoleOut();       // write to STDOUT/STDERR
+  Out* out (new ConsoleOut());      // write to STDOUT/STDERR
+  auto_ptr<Out> a_out(out);         // automatically manage memory with smart pointers
 
   obErrorLog.StopLogging();
 
@@ -265,7 +268,6 @@ int main(int argc, char *argv[], char *envp[]) {
         catch (...) {         // no client connection
           cerr << "client removed.\n";
         }
-        delete out;
       }
     }
     catch (...) {
@@ -273,10 +275,6 @@ int main(int argc, char *argv[], char *envp[]) {
       shutdown(0);
     }
   }
-
-  delete train_set_c;
-  delete train_set_r;
-  delete out;
 
   return (0);
 }
