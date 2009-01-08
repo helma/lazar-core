@@ -139,8 +139,7 @@ int main(int argc, char *argv[], char *envp[]) {
     return(status);
   }
 
-  Out* out (new ConsoleOut());      // write to STDOUT/STDERR
-  auto_ptr<Out> a_out(out);         // automatically manage memory with smart pointers
+  auto_ptr<Out> out(new ConsoleOut());         // write to STDOUT/STDERR
 
   obErrorLog.StopLogging();
 
@@ -163,11 +162,11 @@ int main(int argc, char *argv[], char *envp[]) {
     if (loo) {            // LOO crossvalidation
       out->print();
       if (!quantitative) {
-        train_set_c.reset( new Predictor<OBLazMol,ClassFeat,bool>(smi_file, train_file, feature_file, out) );
+        train_set_c.reset( new Predictor<OBLazMol,ClassFeat,bool>(smi_file, train_file, feature_file, out.get()) );
         train_set_c->loo_predict();
       }
       else {
-        train_set_r.reset( new Predictor<OBLazMol,RegrFeat,float>(smi_file, train_file, feature_file, out) );
+        train_set_r.reset( new Predictor<OBLazMol,RegrFeat,float>(smi_file, train_file, feature_file, out.get()) );
         train_set_r->loo_predict();
       }
       out->print();
@@ -181,11 +180,11 @@ int main(int argc, char *argv[], char *envp[]) {
         optind++;
         out->print();
         if (!quantitative) {
-          train_set_c.reset ( new Predictor<OBLazMol,ClassFeat,bool>(smi_file, train_file, feature_file, alphabet_file,out) );
+          train_set_c.reset ( new Predictor<OBLazMol,ClassFeat,bool>(smi_file, train_file, feature_file, alphabet_file,out.get()) );
           train_set_c->predict_smi(smiles); // AM: start SMILES -> predictor.h
         }
         else {
-          train_set_r.reset ( new Predictor<OBLazMol,RegrFeat,float>(smi_file, train_file, feature_file, alphabet_file,out) );
+          train_set_r.reset ( new Predictor<OBLazMol,RegrFeat,float>(smi_file, train_file, feature_file, alphabet_file,out.get()) );
           train_set_r->predict_smi(smiles); // AM: start SMILES -> predictor.h
         }
       }
@@ -193,11 +192,11 @@ int main(int argc, char *argv[], char *envp[]) {
       else {            // read input file batch predictions
         out->print();
         if (!quantitative) {
-          train_set_c.reset( new Predictor<OBLazMol,ClassFeat,bool>(smi_file, train_file, feature_file, alphabet_file, input_file, out) );
+          train_set_c.reset( new Predictor<OBLazMol,ClassFeat,bool>(smi_file, train_file, feature_file, alphabet_file, input_file, out.get()) );
           train_set_c->predict_ext(); // AM: start SMILES -> predictor.h
         }
         else {
-          train_set_r.reset ( new Predictor<OBLazMol,RegrFeat,float>(smi_file, train_file, feature_file, alphabet_file, input_file, out) );
+          train_set_r.reset ( new Predictor<OBLazMol,RegrFeat,float>(smi_file, train_file, feature_file, alphabet_file, input_file, out.get()) );
           train_set_r->predict_ext(); // AM: start SMILES -> predictor.h
         }
         out->print();
@@ -217,8 +216,8 @@ int main(int argc, char *argv[], char *envp[]) {
     sid = setsid();         // start child and store child id
     if (sid < 0) exit(EXIT_FAILURE);
 
-    if (!quantitative) train_set_c.reset( new Predictor<OBLazMol,ClassFeat,bool>(smi_file, train_file, feature_file, alphabet_file, out) );
-      else train_set_r.reset( new Predictor<OBLazMol,RegrFeat,float>(smi_file, train_file, feature_file, alphabet_file, out) );
+    if (!quantitative) train_set_c.reset( new Predictor<OBLazMol,ClassFeat,bool>(smi_file, train_file, feature_file, alphabet_file, out.get()) );
+      else train_set_r.reset( new Predictor<OBLazMol,RegrFeat,float>(smi_file, train_file, feature_file, alphabet_file, out.get()) );
 
     string tmp;
     signal(SIGTERM, shutdown);
@@ -231,12 +230,12 @@ int main(int argc, char *argv[], char *envp[]) {
 
         ServerSocket socket;      // conversational socket
         server.accept ( socket );   // wait for a client connection
-        out = new SocketOut(&socket); // create a new output object
+        out.reset( new SocketOut(&socket) ); // create a new output object
 
         if (!quantitative)
-          train_set_c->set_output(out);       // set new output
+          train_set_c->set_output(out.get());       // set new output
         else
-          train_set_r->set_output(out);       // set new output
+          train_set_r->set_output(out.get());       // set new output
 
         cerr << "client accepted\n";
 

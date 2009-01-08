@@ -55,20 +55,20 @@ class Predictor {
 		//! neighbors for the prediction of the current query structure
 		vector<MolRef> neighbors;
 		//! input file with activities
-		auto_ptr<char> a_file;
+		char* a_file;
 		//! make leave-one-out crossvalidation?
 		bool loo;
 		//! output object
-		auto_ptr<Out> out;
+		Out* out;
 
 	public:
 
 		//! Predictor constructor for LOO
-		Predictor(char * structure_file, char * act_file, char * feat_file, Out * out): feat_gen(NULL), train_structures(NULL), test_structures(NULL), model(NULL), loo(false), out(out) {
+		Predictor(char * structure_file, char * act_file, char * feat_file, Out * out): feat_gen(NULL), train_structures(NULL), test_structures(NULL), model(NULL), a_file(NULL), loo(false), out(out) {
 			train_structures.reset( new ActMolVect <MolType, FeatureType, ActivityType>(act_file, feat_file, structure_file, out) );
             if (kernel) model.reset( new KernelModel<MolType, FeatureType, ActivityType>(out) );
             else model.reset( new Model<MolType, FeatureType, ActivityType>(out) );
-		{}};
+		};
 
 		//! Predictor constructor for single SMILES prediction
 		Predictor(char * structure_file, char * act_file, char * feat_file, char * alphabet_file, Out* out): feat_gen(NULL), train_structures(NULL), test_structures(NULL), model(NULL), a_file(alphabet_file), loo(false), out(out){
@@ -142,7 +142,7 @@ void Predictor<MolType, FeatureType, ActivityType>::predict_ext() {
 		for (int n = 0; n < test_size; n++) {
 			cur_mol = test_structures->get_compound(n);
 			//delete feat_gen;
-			feat_gen.reset( new FeatGen <MolType, FeatureType, ActivityType>(a_file.get(), train_structures.get(), cur_mol,out.get()) );
+			feat_gen.reset( new FeatGen <MolType, FeatureType, ActivityType>(a_file, train_structures.get(), cur_mol,out) );
 			feat_gen->generate_linfrag(train_structures.get(),cur_mol);
 
 			*out << "Predicting external test id " << cur_mol->get_id() << endl;
@@ -171,7 +171,7 @@ void Predictor<MolType, FeatureType, ActivityType>::predict_file() {
 
 			cur_mol = test_structures->get_compound(n);
 			//delete feat_gen;
-			feat_gen.reset(new FeatGen <MolType, FeatureType, ActivityType>(a_file.get(), train_structures.get(), cur_mol,out.get()));
+			feat_gen.reset(new FeatGen <MolType, FeatureType, ActivityType>(a_file, train_structures.get(), cur_mol,out));
 			feat_gen->generate_linfrag(train_structures.get(),cur_mol);
 
 			//cur_mol->print();
@@ -223,7 +223,7 @@ void Predictor<MolType, FeatureType, ActivityType>::loo_predict() {
 
    
 	clock_t t1 = clock();
-	cerr << "Precomputing siginficance values ... ";
+	cerr << "Precomputing significance values... ";
 
 	// MG : precompute
 	vector<ActivityType> activity_values;
@@ -239,7 +239,7 @@ void Predictor<MolType, FeatureType, ActivityType>::loo_predict() {
 	// MG
 
 	clock_t t2 = clock();
-	cerr << "finished (" << (float)(t2-t1)/CLOCKS_PER_SEC << "sec)" << endl;
+	cerr << "done (" << (float)(t2-t1)/CLOCKS_PER_SEC << "sec)!" << endl;
 
 	for (int n = 0; n < train_structures->get_size(); n++) {
 
@@ -284,14 +284,14 @@ void Predictor<MolType, FeatureType, ActivityType>::predict_smi(string smiles) {
 		vector<MolRef> duplicates ;
 		typename vector<MolRef>::iterator cur_dup;
 
-        auto_ptr<FeatMol <MolType, FeatureType, ActivityType> > cur_mol ( new FeatMol<MolType, FeatureType, ActivityType>(0,"test structure",smiles,out.get()) );
+        auto_ptr<FeatMol <MolType, FeatureType, ActivityType> > cur_mol ( new FeatMol<MolType, FeatureType, ActivityType>(0,"test structure",smiles,out) );
 
 		*out << "Looking for " << cur_mol->get_smiles() << " in the training set\n";
 		out->print_err();
 		duplicates = train_structures->remove_duplicates(cur_mol.get());
 
 		//delete feat_gen;
-        feat_gen.reset( new FeatGen <MolType, FeatureType, ActivityType>(a_file.get(), train_structures.get(), cur_mol.get(),out.get()) );
+        feat_gen.reset( new FeatGen <MolType, FeatureType, ActivityType>(a_file, train_structures.get(), cur_mol.get(),out)) ;
 		feat_gen->generate_linfrag(train_structures.get(),cur_mol.get());
 
 		if (duplicates.size() > 1) {
@@ -335,26 +335,30 @@ void Predictor<MolType, FeatureType, ActivityType>::predict(MolRef test, bool re
 			*out << "---\n";
 
 			if (recalculate) {
-				// MG: instead of calculate, select precomputed significance here
-				//activity_values = train_structures->get_activity_values(*cur_act);
-				//train_structures->feature_significance(*cur_act, activity_values);	// AM: feature significance
 
-				typename vector<FeatRef>::iterator cur_feat;
-				vector<ActivityType> tmp_activities;
+                if (!loo) {
+    				activity_values = train_structures->get_activity_values(*cur_act);
+	    			train_structures->feature_significance(*cur_act, activity_values);	// AM: feature significance
+                }
 
-				tmp_activities = test->get_act(*cur_act);
-				if (tmp_activities.size() > 1) {
-					fprintf(stderr, "Current test structure has more than one activity value");
-					exit(1);
+                // MG
+                else {
+                    typename vector<FeatRef>::iterator cur_feat;
+                    vector<ActivityType> tmp_activities;
+
+                    tmp_activities = test->get_act(*cur_act);
+                    if (tmp_activities.size() > 1) {
+                        fprintf(stderr, "Current test structure has more than one activity value");
+                        exit(1);
+                    }
+                    ClassFeat::set_cur_str_active( *tmp_activities.begin() );
+
+                    // label features that occur in current test structure
+                    vector<FeatRef> test_features = test->get_features();
+                    for (cur_feat=test_features.begin(); cur_feat!=test_features.end(); cur_feat++){
+                        (*cur_feat)->set_cur_feat_occurs( true );
+                    }
 				}
-				ClassFeat::set_cur_str_active( *tmp_activities.begin() );
-
-				// label features that occur in current test structure
-				vector<FeatRef> test_features = test->get_features();
-				for (cur_feat=test_features.begin(); cur_feat!=test_features.end(); cur_feat++){
-					(*cur_feat)->set_cur_feat_occurs( true );
-				}
-				// MG
 			}
 			else {
 				*out << "Significances for " << *cur_act << " not recalculated.\n";
@@ -446,12 +450,12 @@ void Predictor<MolType, FeatureType, ActivityType>::print_neighbors(string act) 
 template <class MolType, class FeatureType, class ActivityType>
 void Predictor<MolType, FeatureType, ActivityType>::set_output(Out * newout) {
 
-	out.reset( newout );
+	out = newout ;
 	int train_size = train_structures->get_size();
-	model->set_output(out.get());
+	model->set_output(out);
 
 	for (int n = 0; n < train_size; n++) {
-		train_structures->get_compound(n)->set_output(out.get());
+		train_structures->get_compound(n)->set_output(out);
 	}
 
 };

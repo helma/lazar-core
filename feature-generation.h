@@ -43,7 +43,7 @@ class FeatGen {
 
 	private:
 
-		auto_ptr<MolVect< MolType, FeatureType, ActivityType > > structures;
+		MolVect< MolType, FeatureType, ActivityType > * structures;
 		vector<OBLinFragRef> alphabet;
 		vector<OBLinFragRef> level;
 		vector<OBLinFragRef> next_level;
@@ -51,18 +51,7 @@ class FeatGen {
 
 	public:
 
-        ~FeatGen() {
-            for (unsigned int i=0; i<alphabet.size(); i++) {
-                delete alphabet[i];
-            }
-            for (unsigned int i=0; i<level.size(); i++) {
-                delete level[i];
-            }
-            for (unsigned int i=0; i<next_level.size(); i++) {
-                delete next_level[i];
-            }
-        }
-
+		FeatGen< MolType, FeatureType, ActivityType >(){};
 		FeatGen< MolType, FeatureType, ActivityType >(MolVect< MolType, FeatureType, ActivityType > * s, Out * out): structures(s), out(out) { };
 
 		FeatGen< MolType, FeatureType, ActivityType >(char * alphabet_file, MolVect< MolType, FeatureType, ActivityType > * s, Out * out): structures(s), out(out) {
