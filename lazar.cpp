@@ -22,8 +22,10 @@
 #include <getopt.h>
 #include "rutils.h"
 #include <memory>
+#include "boost/smart_ptr.hpp"
 
 using namespace std;
+using namespace boost;
 
 float sig_thr = 0.9;
 bool kernel = false;
@@ -56,8 +58,8 @@ int main(int argc, char *argv[], char *envp[]) {
   int port = 0;
   string smiles;
 
-  auto_ptr< Predictor<OBLazMol,ClassFeat,bool> > train_set_c(NULL);
-  auto_ptr< Predictor<OBLazMol,RegrFeat,float> > train_set_r(NULL);
+  shared_ptr< Predictor<OBLazMol,ClassFeat,bool> > train_set_c;
+  shared_ptr< Predictor<OBLazMol,RegrFeat,float> > train_set_r;
 
 
   // argument parsing
@@ -139,7 +141,8 @@ int main(int argc, char *argv[], char *envp[]) {
     return(status);
   }
 
-  auto_ptr<Out> out(new ConsoleOut());         // write to STDOUT/STDERR
+  //shared_ptr<Out> out(new ConsoleOut());         // write to STDOUT/STDERR
+  shared_ptr<Out> out(new ConsoleOut());         // write to STDOUT/STDERR
 
   obErrorLog.StopLogging();
 

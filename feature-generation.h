@@ -26,10 +26,12 @@
 #include <openbabel/groupcontrib.h>
 #include <openbabel/obconversion.h>
 #include <unistd.h>
+#include "boost/smart_ptr.hpp"
 #include <memory>
 
 using namespace std;
 using namespace OpenBabel;
+using namespace boost;
 
 
 //! a class that knows several feature generation techniques

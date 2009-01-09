@@ -64,8 +64,8 @@ int main(int argc, char *argv[]) {
 		return(status);
 	}
 
-	auto_ptr<OBLazMolVect> structures (new OBLazMolVect(structure_file, out));
-	auto_ptr<FeatGen<OBLazMol,OBLinFrag,bool> > fragments ( new FeatGen<OBLazMol,OBLinFrag,bool>(alphabet_file,structures.get(), out) );
+	shared_ptr<OBLazMolVect> structures (new OBLazMolVect(structure_file, out));
+	shared_ptr<FeatGen<OBLazMol,OBLinFrag,bool> > fragments ( new FeatGen<OBLazMol,OBLinFrag,bool>(alphabet_file,structures.get(), out) );
 
 	fragments->generate_linfrag();
 

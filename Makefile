@@ -2,7 +2,7 @@
 SHELL=/bin/bash
 
 PROGRAM = lazar 
-FEAT_GEN = rex linfrag smarts-features testset
+FEAT_GEN = rex linfrag smarts-features
 TOOLS = chisq-filter #pcprop
 INSTALLDIR = /usr/local/bin
 
@@ -32,9 +32,6 @@ lazar: $(OBJ)  lazar.o
 linfrag: $(OBJ) linfrag.o
 	$(CC) $(CXXFLAGS) $(INCLUDE) $(LIBS) $(LDFLAGS) $(RPATH) -o linfrag $(OBJ) linfrag.o
 
-testset: $(OBJ) testset.o
-	$(CC) $(CXXFLAGS) $(INCLUDE) $(LIBS) $(LDFLAGS) $(RPATH) -o testset $(OBJ) testset.o
-
 pcprop: $(OBJ) pcprop.o
 	$(CC) $(CXXFLAGS) $(INCLUDE) $(LIBS) $(LDFLAGS) $(RPATH) -o pcprop $(OBJ) pcprop.o
 
@@ -52,8 +49,6 @@ chisq-filter.o: $(HEADERS) activity-db.h feature-db.h
 rex.o: $(HEADERS) feature-generation.h
 
 linfrag.o: $(HEADERS) feature-generation.h
-
-testset.o: $(HEADERS)
 
 pcprop.o: $(HEADERS)
 

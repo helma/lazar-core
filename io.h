@@ -22,12 +22,14 @@
 #include <sstream>
 
 #include "ServerSocket.h"		// socket library
+#include "boost/smart_ptr.hpp"
 
 
 #ifndef IO_class
 #define IO_class
 
 using namespace std;
+using namespace boost;
 
 class Out: public stringstream {
 	public:
@@ -46,7 +48,7 @@ class ConsoleOut: public Out {
 class SocketOut: public Out {
 
 	private:
-		auto_ptr<ServerSocket> socket;
+		shared_ptr<ServerSocket> socket;
 		
 	public:
 		SocketOut(ServerSocket * socket): socket(socket) {} ;

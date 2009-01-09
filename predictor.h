@@ -22,10 +22,11 @@
 #include "activity-db.h"
 #include "model.h"
 #include "time.h"
-#include <memory>
+#include "boost/smart_ptr.hpp"
 
 using namespace std;
 using namespace OpenBabel;
+using namespace boost;
 
 extern bool kernel;
 extern bool quantitative;
@@ -43,13 +44,13 @@ class Predictor {
 	private:
 
 		//! feature generation for new structures
-		auto_ptr<FeatGen <MolType, FeatureType, ActivityType> > feat_gen;
+		shared_ptr<FeatGen <MolType, FeatureType, ActivityType> > feat_gen;
 		//! training structures
-		auto_ptr<ActMolVect <MolType, FeatureType, ActivityType> > train_structures;
+		shared_ptr<ActMolVect <MolType, FeatureType, ActivityType> > train_structures;
 		//! test structures for batch predictions
-		auto_ptr<MolVect <MolType, FeatureType, ActivityType> > test_structures;
+		shared_ptr<MolVect <MolType, FeatureType, ActivityType> > test_structures;
 		//! model
-		auto_ptr<MetaModel<MolType, FeatureType, ActivityType> > model;
+		shared_ptr<MetaModel<MolType, FeatureType, ActivityType> > model;
 
 
 		//! neighbors for the prediction of the current query structure
@@ -64,21 +65,21 @@ class Predictor {
 	public:
 
 		//! Predictor constructor for LOO
-		Predictor(char * structure_file, char * act_file, char * feat_file, Out * out): feat_gen(NULL), train_structures(NULL), test_structures(NULL), model(NULL), a_file(NULL), loo(false), out(out) {
+		Predictor(char * structure_file, char * act_file, char * feat_file, Out * out): a_file(NULL), loo(false), out(out) {
 			train_structures.reset( new ActMolVect <MolType, FeatureType, ActivityType>(act_file, feat_file, structure_file, out) );
             if (kernel) model.reset( new KernelModel<MolType, FeatureType, ActivityType>(out) );
             else model.reset( new Model<MolType, FeatureType, ActivityType>(out) );
 		};
 
 		//! Predictor constructor for single SMILES prediction
-		Predictor(char * structure_file, char * act_file, char * feat_file, char * alphabet_file, Out* out): feat_gen(NULL), train_structures(NULL), test_structures(NULL), model(NULL), a_file(alphabet_file), loo(false), out(out){
+		Predictor(char * structure_file, char * act_file, char * feat_file, char * alphabet_file, Out* out): a_file(alphabet_file), loo(false), out(out){
 			train_structures.reset( new ActMolVect <MolType, FeatureType, ActivityType>(act_file, feat_file, structure_file, out) );
             if (kernel) model.reset( new KernelModel<MolType, FeatureType, ActivityType>(out ));
             else model.reset(new Model<MolType, FeatureType, ActivityType>(out));
 		}
 
 		//! Predictor constructor for batch prediction
-		Predictor(char * structure_file, char * act_file, char * feat_file, char * alphabet_file, char * input_file, Out* out): feat_gen(NULL), train_structures(NULL), test_structures(NULL), model(NULL), a_file(alphabet_file), loo(false), out(out){
+		Predictor(char * structure_file, char * act_file, char * feat_file, char * alphabet_file, char * input_file, Out* out): a_file(alphabet_file), loo(false), out(out){
 			train_structures.reset( new ActMolVect <MolType, FeatureType, ActivityType>(act_file, feat_file, structure_file, out) );
 			test_structures.reset( new MolVect <MolType, FeatureType, ActivityType>(input_file, out) );
             if (kernel) model.reset( new KernelModel<MolType, FeatureType, ActivityType>(out) );
@@ -284,7 +285,7 @@ void Predictor<MolType, FeatureType, ActivityType>::predict_smi(string smiles) {
 		vector<MolRef> duplicates ;
 		typename vector<MolRef>::iterator cur_dup;
 
-        auto_ptr<FeatMol <MolType, FeatureType, ActivityType> > cur_mol ( new FeatMol<MolType, FeatureType, ActivityType>(0,"test structure",smiles,out) );
+        shared_ptr<FeatMol <MolType, FeatureType, ActivityType> > cur_mol ( new FeatMol<MolType, FeatureType, ActivityType>(0,"test structure",smiles,out) );
 
 		*out << "Looking for " << cur_mol->get_smiles() << " in the training set\n";
 		out->print_err();
