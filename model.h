@@ -54,11 +54,11 @@ class MetaModel {
 	typedef vector<FeatMol<MolType,FeatureType,ActivityType>*> MolVect; 
 
 		public:
-				Out* out;
+				shared_ptr<Out> out;
 
     public:
         //MetaModel(Out* out): out(out) {};
-				void set_output(Out * newout) { out = newout; };
+				void set_output(shared_ptr<Out> newout) { out = newout; };
         virtual ~MetaModel() {};
         virtual void calculate_prediction(FeatMol < MolType, ClassFeat, bool >* test, ClassMolVect * neighbors, string act){};
         virtual void calculate_prediction(FeatMol < MolType, RegrFeat, float >* test, RegrMolVect * neighbors, string act){};
@@ -76,7 +76,7 @@ class Model: public MetaModel<MolType,FeatureType,ActivityType> {
         vector<string> unknown_features;
 
     public:
-        Model(Out* out) { this->set_output(out); };
+        Model(shared_ptr<Out> out) { this->set_output(out); };
         virtual ~Model() {};
         virtual void calculate_prediction(FeatMol<MolType,ClassFeat,bool>* t, ClassMolVect* neighbors, string act);
         virtual void calculate_prediction(FeatMol<MolType,RegrFeat,float>* test, RegrMolVect* neighbors, string act);
@@ -97,7 +97,7 @@ class KernelModel: public MetaModel<MolType,FeatureType,ActivityType> {
         //Out* out;
 
     public:
-        KernelModel(Out* out) { this->set_output(out); };
+        KernelModel(shared_ptr<Out> out) { this->set_output(out); };
         virtual ~KernelModel() {};
         virtual void calculate_prediction(FeatMol<MolType,ClassFeat,bool>* t, ClassMolVect * neighbors, string act);
         virtual void calculate_prediction(FeatMol<MolType,RegrFeat,float>* test, RegrMolVect * neighbors, string act);

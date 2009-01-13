@@ -57,12 +57,12 @@ class LazMol {
 		string id;	// e.g. name, CAS, NSC, ...
 		string smiles;	// SMILES string
 		string inchi; // InChI string for the determination of structural identity (use only the basic InChI layer, because stereochemistry is not considered)
-		Out * out;
+		shared_ptr<Out> out;
 
 	public:
 
 		LazMol();
-		LazMol(int nr, string new_id, string new_smiles, Out * out);
+		LazMol(int nr, string new_id, string new_smiles, shared_ptr<Out> out);
 
 		void set_id(string id);
 		void set_inchi(string new_inchi);
@@ -73,7 +73,7 @@ class LazMol {
 
 		void print(); //!< print id and line number
 		string get_smiles();	//!< return SMILES string
-		void set_output(Out * newout);
+		void set_output(shared_ptr<Out> newout);
 
 };
 
@@ -83,17 +83,17 @@ class OBLazMol: public LazMol {
 	private:
 
 		OBMol mol;	// OBMol object
-		Out * out;
+		shared_ptr<Out> out;
 
 	public:
 
-		OBLazMol(int nr, string id, string new_smiles, Out * out);
+		OBLazMol(int nr, string id, string new_smiles, shared_ptr<Out> out);
 
 		bool match(OBSmartsPattern * smarts_pattern);	//!< match a OBSmartsPattern
 		int match_freq(OBSmartsPattern * smarts_pattern);	//!< match a OBSmartsPattern and return the number of matches
 		OBMol * get_mol_ref();	//!< return the reference to the corresponding OBMol object
 		vector<string> sssr();	//!< identify the smallest set of smallest rings
-		void set_output(Out * newout) { out = newout; };
+		void set_output(shared_ptr<Out> newout) { out = newout; };
 
 };
 
@@ -126,13 +126,13 @@ class FeatMol: public MolType {
 
 		ActivityType prediction;
 
-		Out * out;
+		shared_ptr<Out> out;
 
 	public:
 
 		FeatMol(int nr): MolType(nr), similarity(0) {};
 		FeatMol(int i, string id, string smi): MolType(i, id, smi), similarity(0) {};
-		FeatMol(int i, string id, string smi, Out * out): MolType(i, id, smi, out), similarity(0), out(out) {};
+		FeatMol(int i, string id, string smi, shared_ptr<Out> out): MolType(i, id, smi, out), similarity(0), out(out) {};
 
 		bool find_f_in_n(RegrFeat* f, FeatMol<MolType,RegrFeat,float>* n);
 
@@ -248,7 +248,7 @@ class FeatMol: public MolType {
 
 		bool match(Feature<OBLinFrag> * feat_ptr);
 
-		void set_output(Out * newout) { out = newout; }
+		void set_output(shared_ptr<Out> newout) { out = newout; }
 
 };
 
@@ -935,7 +935,7 @@ void FeatMol<MolType,FeatureType,ActivityType>::print_features(string act) {
 			if (!redundant) {
 				nonred.push_back(*cur_feat);
 				if ((*cur_feat)->get_p(act) >= (*cur_feat)->get_p_limit()) {
-					(*cur_feat)->print(act,out);
+					(*cur_feat)->print(act,out.get());
 				}
 			}
 		}

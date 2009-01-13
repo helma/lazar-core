@@ -39,7 +39,7 @@ class MolVect {
 	private:
 
 		vector<MolRef> compounds;
-		Out* out;
+		shared_ptr<Out> out;
 
 	public:
 
@@ -51,7 +51,7 @@ class MolVect {
 		MolVect() {};
 
 		//! MolVect constructor: reads SMILES from file (called by FeatMolVect())
-		MolVect(char * structure_file, Out * out);
+		MolVect(char * structure_file, shared_ptr<Out> out);
 
 		//! add a new feature to compound comp_nr
 		void add_feature(int comp_nr, Feature<FeatureType> * feat_ptr) {
@@ -87,7 +87,7 @@ class MolVect {
 };
 
 template <class MolType, class FeatureType, class ActivityType>
-MolVect<MolType, FeatureType, ActivityType>::MolVect(char * structure_file, Out * out): out(out) {
+MolVect<MolType, FeatureType, ActivityType>::MolVect(char * structure_file, shared_ptr<Out> out): out(out) {
 
 	string line;
 	string tmp_field;

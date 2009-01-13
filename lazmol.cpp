@@ -24,7 +24,7 @@
 
 LazMol::LazMol() {};
 
-LazMol::LazMol(int nr, string new_descr, string new_smiles, Out * out): line_nr(nr), id(new_descr), smiles(new_smiles), out(out) {
+LazMol::LazMol(int nr, string new_descr, string new_smiles, shared_ptr<Out> out): line_nr(nr), id(new_descr), smiles(new_smiles), out(out) {
 
 };
 
@@ -49,11 +49,11 @@ string LazMol::get_smiles() { return(smiles); };
 
 string LazMol::get_inchi() { return(inchi); };
 
-void LazMol::set_output(Out * newout) { out = newout; };
+void LazMol::set_output(shared_ptr<Out> newout) { out = newout; };
 
 // OBLazMol
 
-OBLazMol::OBLazMol(int nr, string new_descr, string new_smiles, Out * out):
+OBLazMol::OBLazMol(int nr, string new_descr, string new_smiles, shared_ptr<Out> out):
 
 	LazMol(nr,new_descr,new_smiles,out), out(out) {
 

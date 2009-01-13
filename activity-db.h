@@ -30,7 +30,7 @@ class ActMolVect: public FeatMolVect< MolType, FeatureType, ActivityType > {
 	private:
 
 		vector<string> activity_names;
-		Out * out;
+		shared_ptr<Out> out;
 
 	public:
 
@@ -38,7 +38,7 @@ class ActMolVect: public FeatMolVect< MolType, FeatureType, ActivityType > {
 		typedef Feature<FeatureType> * FeatRef;
 
 		//! ActMolVect constructor, called directly by Predictor(). Reads in activity values after (implicitly) calling super class constructor FeatMolVect()
-		ActMolVect< MolType, FeatureType, ActivityType >(char * act_file,char * feat_file, char  * structure_file, Out * out);
+		ActMolVect< MolType, FeatureType, ActivityType >(char * act_file,char * feat_file, char  * structure_file, shared_ptr<Out> out);
 
 		//! read activities
 		void read_act(char * act_file);
@@ -70,7 +70,7 @@ class ActMolVect: public FeatMolVect< MolType, FeatureType, ActivityType > {
 
 // read activity file
 template <class MolType, class FeatureType, class ActivityType>
-ActMolVect<MolType, FeatureType, ActivityType>::ActMolVect(char* act_file,char* feat_file, char* structure_file, Out* out): FeatMolVect< MolType, FeatureType, ActivityType >(feat_file,structure_file,out), out(out) {
+ActMolVect<MolType, FeatureType, ActivityType>::ActMolVect(char* act_file,char* feat_file, char* structure_file, shared_ptr<Out> out): FeatMolVect< MolType, FeatureType, ActivityType >(feat_file,structure_file,out), out(out) {
 
 	string line;
 	string tmp_field;
@@ -229,7 +229,7 @@ void ActMolVect<MolType, FeatureType, ActivityType>::print_sig_features(float li
 			if ( (*cur_feat)->get_p(*cur_act) > limit ) {
 
 				if (find(printed_features.begin(),printed_features.end(),*cur_feat) == printed_features.end()) {
-					(*cur_feat)->print_matches(out, smarts);
+					(*cur_feat)->print_matches(out.get(), smarts);
 					printed_features.push_back(*cur_feat);
 				}
 			}
@@ -254,7 +254,7 @@ void  ActMolVect<MolType, FeatureType, ActivityType>::print_sorted_features(floa
         for (cur_feat=features->begin(); cur_feat!=features->end(); cur_feat++) {
 
             if ( (*cur_feat)->get_p(*cur_act) > limit )
-		(*cur_feat)->print_all(*cur_act, out, smarts);
+		(*cur_feat)->print_all(*cur_act, out.get(), smarts);
 
         }
     }

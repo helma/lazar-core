@@ -38,11 +38,11 @@ class FeatMolVect: public MolVect<MolType,FeatureType,ActivityType> {
 
 		map<const string, FeatRef> feature_map;		// lookup features by name
 		vector<FeatRef> features;
-		Out * out;
+		shared_ptr<Out> out;
 
 	public:
 
-		FeatMolVect< MolType, FeatureType, ActivityType >(char * feat_file, char * structure_file, Out * out); 
+		FeatMolVect< MolType, FeatureType, ActivityType >(char * feat_file, char * structure_file, shared_ptr<Out> out); 
         ~FeatMolVect() {
             for (unsigned int i=0; i<features.size(); i++) {
                 delete features[i];
@@ -61,7 +61,7 @@ class FeatMolVect: public MolVect<MolType,FeatureType,ActivityType> {
 
 // read a feature file
 template <class MolType, class FeatureType, class ActivityType>
-FeatMolVect<MolType, FeatureType, ActivityType>::FeatMolVect(char * feat_file, char * structure_file, Out * out): MolVect< MolType, FeatureType, ActivityType >(structure_file,out), out(out) {
+FeatMolVect<MolType, FeatureType, ActivityType>::FeatMolVect(char * feat_file, char * structure_file, shared_ptr<Out> out): MolVect< MolType, FeatureType, ActivityType >(structure_file,out), out(out) {
 
 	ifstream input;
 	input.open(feat_file);

@@ -49,21 +49,21 @@ class FeatGen {
 		vector<OBLinFragRef> alphabet;
 		vector<OBLinFragRef> level;
 		vector<OBLinFragRef> next_level;
-		Out * out;
+		shared_ptr<Out> out;
 
 	public:
 
 		FeatGen< MolType, FeatureType, ActivityType >(){};
-		FeatGen< MolType, FeatureType, ActivityType >(MolVect< MolType, FeatureType, ActivityType > * s, Out * out): structures(s), out(out) { };
+		FeatGen< MolType, FeatureType, ActivityType >(MolVect< MolType, FeatureType, ActivityType > * s, shared_ptr<Out> out): structures(s), out(out) { };
 
-		FeatGen< MolType, FeatureType, ActivityType >(char * alphabet_file, MolVect< MolType, FeatureType, ActivityType > * s, Out * out): structures(s), out(out) {
+		FeatGen< MolType, FeatureType, ActivityType >(char * alphabet_file, MolVect< MolType, FeatureType, ActivityType > * s, shared_ptr<Out> out): structures(s), out(out) {
 			*out << "Reading alphabet from " << alphabet_file << endl;
 			out->print_err();
 			this->read_smarts(alphabet_file,true,false);
 		};
 
 		// AM: from LOO 
-		FeatGen< MolType, FeatureType, ActivityType >(char * alphabet_file, MolVect< MolType, FeatureType, ActivityType > * s, MolRef mol, Out * out): structures(s), out(out) {
+		FeatGen< MolType, FeatureType, ActivityType >(char * alphabet_file, MolVect< MolType, FeatureType, ActivityType > * s, MolRef mol, shared_ptr<Out> out): structures(s), out(out) {
 			this->read_smarts(alphabet_file,false,false);
 		};
 
@@ -291,7 +291,7 @@ void FeatGen<MolType, FeatureType, ActivityType>::sssr() {
 		for (vector<string>::iterator cur_sma = diff.begin(); cur_sma != diff.end(); cur_sma++) {
 			Feature<OBLinFrag> sma(*cur_sma,0);
 			this->match(&sma);
-			sma.print_matches(out);
+			sma.print_matches(out.get());
 			unique_smarts.push_back(*cur_sma);
 		}
 
@@ -494,7 +494,7 @@ void FeatGen<MolType, FeatureType, ActivityType>::match_level(bool print) {
 		}
 		
 		else if (print) {
-			(*frag)->print_matches(out);
+			(*frag)->print_matches(out.get());
 		}
 		
 	}

@@ -60,26 +60,26 @@ class Predictor {
 		//! make leave-one-out crossvalidation?
 		bool loo;
 		//! output object
-		Out* out;
+		shared_ptr<Out> out;
 
 	public:
 
 		//! Predictor constructor for LOO
-		Predictor(char * structure_file, char * act_file, char * feat_file, Out * out): a_file(NULL), loo(false), out(out) {
+		Predictor(char * structure_file, char * act_file, char * feat_file, shared_ptr<Out> out): a_file(NULL), loo(false), out(out) {
 			train_structures.reset( new ActMolVect <MolType, FeatureType, ActivityType>(act_file, feat_file, structure_file, out) );
             if (kernel) model.reset( new KernelModel<MolType, FeatureType, ActivityType>(out) );
             else model.reset( new Model<MolType, FeatureType, ActivityType>(out) );
 		};
 
 		//! Predictor constructor for single SMILES prediction
-		Predictor(char * structure_file, char * act_file, char * feat_file, char * alphabet_file, Out* out): a_file(alphabet_file), loo(false), out(out){
+		Predictor(char * structure_file, char * act_file, char * feat_file, char * alphabet_file, shared_ptr<Out> out): a_file(alphabet_file), loo(false), out(out){
 			train_structures.reset( new ActMolVect <MolType, FeatureType, ActivityType>(act_file, feat_file, structure_file, out) );
             if (kernel) model.reset( new KernelModel<MolType, FeatureType, ActivityType>(out ));
             else model.reset(new Model<MolType, FeatureType, ActivityType>(out));
 		}
 
 		//! Predictor constructor for batch prediction
-		Predictor(char * structure_file, char * act_file, char * feat_file, char * alphabet_file, char * input_file, Out* out): a_file(alphabet_file), loo(false), out(out){
+		Predictor(char * structure_file, char * act_file, char * feat_file, char * alphabet_file, char * input_file, shared_ptr<Out> out): a_file(alphabet_file), loo(false), out(out){
 			train_structures.reset( new ActMolVect <MolType, FeatureType, ActivityType>(act_file, feat_file, structure_file, out) );
 			test_structures.reset( new MolVect <MolType, FeatureType, ActivityType>(input_file, out) );
             if (kernel) model.reset( new KernelModel<MolType, FeatureType, ActivityType>(out) );
@@ -109,7 +109,7 @@ class Predictor {
 		void print_neighbors(string act);
 
 		//! set the output object (e.g. switch between console and socket)
-		void set_output(Out * newout);
+		void set_output(shared_ptr<Out> newout);
 
 		//! match features (SMARTS) from a file
 		void match_file_smarts(char * file);
@@ -449,7 +449,7 @@ void Predictor<MolType, FeatureType, ActivityType>::print_neighbors(string act) 
 };
 
 template <class MolType, class FeatureType, class ActivityType>
-void Predictor<MolType, FeatureType, ActivityType>::set_output(Out * newout) {
+void Predictor<MolType, FeatureType, ActivityType>::set_output(shared_ptr<Out> newout) {
 
 	out = newout ;
 	int train_size = train_structures->get_size();
