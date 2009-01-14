@@ -50,7 +50,7 @@ class Feat {
 
 		string get_name();
 		void set_name(string newname);
-		void print(Out * out);
+		void print(shared_ptr<Out> out);
 };
 
 
@@ -98,9 +98,9 @@ class ClassFeat: public Feat {
 		void set_cur_feat_occurs(bool feat_occurs);
 		// MG
 
-		void print_header(Out * out);
-		void print(string act,Out * out);
-		void print_specifics(string act, Out* out);
+		void print_header(shared_ptr<Out> out);
+		void print(string act,shared_ptr<Out> out);
+		void print_specifics(string act, shared_ptr<Out> out);
 
 		void set_cur_significance(string act) {
 			cur_sig = significance[get_map_key(act)]; };
@@ -160,9 +160,9 @@ class RegrFeat: public Feat {
 		}
 		//MG
 
-		void print_header(Out * out);
-		void print(string act,Out * out);
-		void print_specifics(string act, Out* out);
+		void print_header(shared_ptr<Out> out);
+		void print(string act,shared_ptr<Out> out);
+		void print_specifics(string act, shared_ptr<Out> out);
 
 		float get_significance(string act) { return(significance[act]); };	//! returns the p value of the feature
 		void set_cur_significance(string act) { cur_sig = significance[act]; };
@@ -273,8 +273,8 @@ class Feature: public FeatureType {
 
 		int nr_matches() { return(matches.size()); };
 
-		void print_matches(Out * out, char* smarts);
-		void print_all(string act, Out * out, char* smarts);
+		void print_matches(shared_ptr<Out> out, char* smarts);
+		void print_all(string act, shared_ptr<Out> out, char* smarts);
 
 		bool more_specific(FeatureType * f2);
 
@@ -284,7 +284,7 @@ class Feature: public FeatureType {
 };
 
 template <class FeatureType>
-void Feature<FeatureType>::print_matches(Out * out, char* smarts=NULL) {
+void Feature<FeatureType>::print_matches(shared_ptr<Out> out, char* smarts=NULL) {
 	if ((smarts == NULL) || (smarts==this->get_name())) {
 		*out << this->get_name() << "\t[ ";
 		copy(matches.begin(), matches.end(), ostream_iterator<int>(*out, " "));
@@ -296,7 +296,7 @@ void Feature<FeatureType>::print_matches(Out * out, char* smarts=NULL) {
 
 
 template <class FeatureType>
-void Feature<FeatureType>::print_all(string act, Out * out, char* smarts=NULL) {
+void Feature<FeatureType>::print_all(string act, shared_ptr<Out> out, char* smarts=NULL) {
 	if ((smarts == NULL) || (smarts==this->get_name())) {
 		this->print_specifics(act, out);
 		*out << "\t[ ";

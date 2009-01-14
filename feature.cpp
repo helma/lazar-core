@@ -30,7 +30,7 @@ string Feat::get_name() { return (name); };
 
 void Feat::set_name(string newname) { name = newname; };
 
-void Feat::print(Out * out) {
+void Feat::print(shared_ptr<Out> out) {
 	*out << name;
 	out->print();
 };
@@ -200,7 +200,7 @@ void ClassFeat::determine_significance(string act, float n_a, float n_i, vector<
 
 };
 
-void ClassFeat::print(string act,Out * out) {
+void ClassFeat::print(string act,shared_ptr<Out> out) {
 
 	float na = get_na(act);
 	float ni = get_ni(act);
@@ -270,7 +270,7 @@ float ClassFeat::get_fi(string act) {
 		return fi[act];
 };
 
-void ClassFeat::print_specifics(string act, Out* out) {
+void ClassFeat::print_specifics(string act, shared_ptr<Out> out) {
 
 	float na = get_na(act);
 	float ni = get_ni(act);
@@ -430,12 +430,12 @@ void RegrFeat::determine_significance(string act, float global_med, vector<float
     };
 
 
-void RegrFeat::print_header(Out * out) {
+void RegrFeat::print_header(shared_ptr<Out> out) {
 	*out << "Feature\tp_sign_test\tmedian\tmedian_trainset\tlarger\tsmaller\tn\tactivating/inactivating\n";
 	out->print();
 } ;
 
-void RegrFeat::print(string act,Out * out) {
+void RegrFeat::print(string act,shared_ptr<Out> out) {
 
 		*out << "    - smarts: '" << this->get_name() << "'\n";
 		*out << "      p_ks: '" << this->p[act] << "'\n";
@@ -480,7 +480,7 @@ float RegrFeat::calc_p(string act) {
 
 };
 
-void RegrFeat::print_specifics(string act, Out* out) {
+void RegrFeat::print_specifics(string act, shared_ptr<Out> out) {
 		float p = this->p[act];
 		*out << this->get_name() << "\t" << p << "\t";
 		out->print();

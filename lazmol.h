@@ -935,7 +935,7 @@ void FeatMol<MolType,FeatureType,ActivityType>::print_features(string act) {
 			if (!redundant) {
 				nonred.push_back(*cur_feat);
 				if ((*cur_feat)->get_p(act) >= (*cur_feat)->get_p_limit()) {
-					(*cur_feat)->print(act,out.get());
+					(*cur_feat)->print(act,out);
 				}
 			}
 		}

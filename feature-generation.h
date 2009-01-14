@@ -45,7 +45,7 @@ class FeatGen {
 
 	private:
 
-		MolVect< MolType, FeatureType, ActivityType > * structures;
+		shared_ptr<MolVect< MolType, FeatureType, ActivityType > > structures;
 		vector<OBLinFragRef> alphabet;
 		vector<OBLinFragRef> level;
 		vector<OBLinFragRef> next_level;
@@ -54,7 +54,7 @@ class FeatGen {
 	public:
 
 		FeatGen< MolType, FeatureType, ActivityType >(){};
-		FeatGen< MolType, FeatureType, ActivityType >(MolVect< MolType, FeatureType, ActivityType > * s, shared_ptr<Out> out): structures(s), out(out) { };
+		FeatGen< MolType, FeatureType, ActivityType >(shared_ptr<MolVect< MolType, FeatureType, ActivityType > > s, shared_ptr<Out> out): structures(s), out(out) { };
 
 		FeatGen< MolType, FeatureType, ActivityType >(char * alphabet_file, MolVect< MolType, FeatureType, ActivityType > * s, shared_ptr<Out> out): structures(s), out(out) {
 			*out << "Reading alphabet from " << alphabet_file << endl;
@@ -63,7 +63,7 @@ class FeatGen {
 		};
 
 		// AM: from LOO 
-		FeatGen< MolType, FeatureType, ActivityType >(char * alphabet_file, MolVect< MolType, FeatureType, ActivityType > * s, MolRef mol, shared_ptr<Out> out): structures(s), out(out) {
+		FeatGen< MolType, FeatureType, ActivityType >(char * alphabet_file, shared_ptr<MolVect< MolType, FeatureType, ActivityType > > s, MolRef mol, shared_ptr<Out> out): structures(s), out(out) {
 			this->read_smarts(alphabet_file,false,false);
 		};
 
@@ -71,7 +71,7 @@ class FeatGen {
 		void generate_linfrag();
 
 		//! generate linear fragments that occur in test_mol and train_structures
-		void generate_linfrag(FeatMolVect< MolType, FeatureType, ActivityType > * train_structures, MolRef test_mol);
+		void generate_linfrag(shared_ptr<FeatMolVect< MolType, FeatureType, ActivityType > > train_structures, MolRef test_mol);
 
 		//! Prints testset for random selection
 		void generate_testset(int p, Out* out);
@@ -142,14 +142,14 @@ void FeatGen<MolType, FeatureType, ActivityType>::generate_linfrag() {
 };
 
 template <class MolType, class FeatureType, class ActivityType>
-void FeatGen<MolType, FeatureType, ActivityType>::generate_linfrag(FeatMolVect< MolType, FeatureType, ActivityType > * train_structures, MolRef test_comp) {
+void FeatGen<MolType, FeatureType, ActivityType>::generate_linfrag(shared_ptr<FeatMolVect< MolType, FeatureType, ActivityType > > train_structures, MolRef test_comp) {
 
 	level = alphabet;
 
 	while (this->level_size() > 0) {
 		this->match(test_comp);
 		this->match_level(false);
-		this->copy_level(train_structures,test_comp);
+		this->copy_level(train_structures.get(),test_comp);
 		this->refine_linfrag(0);
 	}
 	
@@ -291,7 +291,7 @@ void FeatGen<MolType, FeatureType, ActivityType>::sssr() {
 		for (vector<string>::iterator cur_sma = diff.begin(); cur_sma != diff.end(); cur_sma++) {
 			Feature<OBLinFrag> sma(*cur_sma,0);
 			this->match(&sma);
-			sma.print_matches(out.get());
+			sma.print_matches(out);
 			unique_smarts.push_back(*cur_sma);
 		}
 
@@ -494,7 +494,7 @@ void FeatGen<MolType, FeatureType, ActivityType>::match_level(bool print) {
 		}
 		
 		else if (print) {
-			(*frag)->print_matches(out.get());
+			(*frag)->print_matches(out);
 		}
 		
 	}
