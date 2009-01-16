@@ -35,6 +35,7 @@ class ActMolVect: public FeatMolVect< MolType, FeatureType, ActivityType > {
 	public:
 
 		typedef FeatMol < MolType, FeatureType, ActivityType > * MolRef ;
+		typedef shared_ptr<FeatMol < MolType, FeatureType, ActivityType > > sMolRef ;
 		typedef Feature<FeatureType> * FeatRef;
 
 		//! ActMolVect constructor, called directly by Predictor(). Reads in activity values after (implicitly) calling super class constructor FeatMolVect()
@@ -171,7 +172,7 @@ vector<ActivityType> ActMolVect<MolType, FeatureType, ActivityType>::get_activit
 
 	vector<ActivityType> activities;
 	vector<ActivityType> tmp;
-	vector<MolRef> compounds = this->get_compounds();
+	vector<sMolRef> compounds = this->get_compounds();
 	vector<int>::iterator cur_comp;
 	typename vector<ActivityType>::iterator cur_a;
 
@@ -192,9 +193,9 @@ vector<ActivityType> ActMolVect<MolType, FeatureType, ActivityType>::get_activit
 
 	vector<ActivityType> activities;
 	vector<ActivityType> tmp;
-	vector<MolRef> compounds = this->get_compounds();
+	vector<sMolRef> compounds = this->get_compounds();
 	typename vector<ActivityType>::iterator cur_a;
-	typename vector<MolRef>::iterator cur_comp;
+	typename vector<sMolRef>::iterator cur_comp;
 
 	for (cur_comp=compounds.begin();cur_comp!=compounds.end();cur_comp++) {
 

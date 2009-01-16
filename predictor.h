@@ -38,6 +38,7 @@ class Predictor {
 	public:
 
 		typedef FeatMol < MolType, FeatureType, ActivityType > * MolRef ;
+		typedef shared_ptr<FeatMol < MolType, FeatureType, ActivityType > > sMolRef ;
 		typedef Feature<OBLinFrag> * OBLinFragRef;
 		typedef Feature<FeatureType> * FeatRef;
 
@@ -122,9 +123,9 @@ class Predictor {
 template <class MolType, class FeatureType, class ActivityType>
 void Predictor<MolType, FeatureType, ActivityType>::predict_ext() {
 
-		typename vector<MolRef>::iterator cur_dup;
+		typename vector<sMolRef>::iterator cur_dup;
 
-		MolRef cur_mol;
+		sMolRef cur_mol;
 		int test_size = test_structures->get_size();
 
 
@@ -132,7 +133,7 @@ void Predictor<MolType, FeatureType, ActivityType>::predict_ext() {
 			cur_mol = test_structures->get_compound(n);
 			//delete feat_gen;
 
-			vector<MolRef> duplicates = train_structures->remove_duplicates(cur_mol);
+			vector<sMolRef> duplicates = train_structures->remove_duplicates(cur_mol);
 			if (duplicates.size()) {
 				*out << int(duplicates.size()) << " instances of " << cur_mol->get_smiles() << " removed from the training set!\n";
 				out->print_err();
@@ -143,17 +144,17 @@ void Predictor<MolType, FeatureType, ActivityType>::predict_ext() {
 		for (int n = 0; n < test_size; n++) {
 			cur_mol = test_structures->get_compound(n);
 			//delete feat_gen;
-			feat_gen.reset( new FeatGen <MolType, FeatureType, ActivityType>(a_file, train_structures, cur_mol,out) );
-			feat_gen->generate_linfrag(train_structures,cur_mol);
+			feat_gen.reset( new FeatGen <MolType, FeatureType, ActivityType>(a_file, train_structures, cur_mol.get(),out) );
+			feat_gen->generate_linfrag(train_structures,cur_mol.get());
 
 			*out << "Predicting external test id " << cur_mol->get_id() << endl;
 			out->print_err();
 
 			// recalculate frequencies and and significance only for the first time
 			if (n == 0)
-				this->predict(cur_mol, true);
+				this->predict(cur_mol.get(), true);
 			else
-				this->predict(cur_mol, false);
+				this->predict(cur_mol.get(), false);
 
 		}
 
@@ -219,8 +220,8 @@ template <class MolType, class FeatureType, class ActivityType>
 void Predictor<MolType, FeatureType, ActivityType>::loo_predict() {
 
 	loo = true;
-	MolRef cur_mol;
-	typename vector<MolRef>::iterator cur_dup;
+	sMolRef cur_mol;
+	typename vector<sMolRef>::iterator cur_dup;
 
    
 	clock_t t1 = clock();
@@ -251,13 +252,13 @@ void Predictor<MolType, FeatureType, ActivityType>::loo_predict() {
 		// make query compound unavailable as train structure in this round
 		*out << "Looking for " << cur_mol->get_smiles() << " in the training set\n";
 		out->print_err();
-		vector<MolRef> duplicates = train_structures->remove_duplicates(cur_mol);
+		vector<sMolRef> duplicates = train_structures->remove_duplicates(cur_mol);
 		if (duplicates.size() > 1) {
 			*out << duplicates.size() << " instances of " << cur_mol->get_smiles() << " in the training set!\n";
 			out->print_err();
 		}
 		// predict by recalculating significance values
-		this->predict(cur_mol,true,false);
+		this->predict(cur_mol.get(),true,false);
 
         // recover query compound as train structure for the next round
 		if (duplicates.size() >= 1) {
@@ -282,14 +283,14 @@ template <class MolType, class FeatureType, class ActivityType>
 void Predictor<MolType, FeatureType, ActivityType>::predict_smi(string smiles) {
 
 		bool recalculate = true;
-		vector<MolRef> duplicates ;
-		typename vector<MolRef>::iterator cur_dup;
+		vector<sMolRef> duplicates ;
+		typename vector<sMolRef>::iterator cur_dup;
 
         shared_ptr<FeatMol <MolType, FeatureType, ActivityType> > cur_mol ( new FeatMol<MolType, FeatureType, ActivityType>(0,"test structure",smiles,out) );
 
 		*out << "Looking for " << cur_mol->get_smiles() << " in the training set\n";
 		out->print_err();
-		duplicates = train_structures->remove_duplicates(cur_mol.get());
+		duplicates = train_structures->remove_duplicates(cur_mol);
 
 		//delete feat_gen;
         feat_gen.reset( new FeatGen <MolType, FeatureType, ActivityType>(a_file, train_structures, cur_mol.get(),out)) ;

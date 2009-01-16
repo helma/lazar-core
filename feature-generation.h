@@ -40,6 +40,7 @@ class FeatGen {
 
 	public:
 		typedef FeatMol < MolType, FeatureType, ActivityType > * MolRef ;
+		typedef shared_ptr<FeatMol < MolType, FeatureType, ActivityType > > sMolRef ;
 		typedef Feature<OBLinFrag> * OBLinFragRef;
 		typedef Feature<FeatureType> * FeatRef;
 
@@ -460,8 +461,8 @@ void FeatGen<MolType, FeatureType, ActivityType>::match(MolRef test_comp) {
 template <class MolType, class FeatureType, class ActivityType>
 void FeatGen<MolType, FeatureType, ActivityType>::match(OBLinFragRef feat_ptr) {
 
-	vector<MolRef> compounds = structures->get_compounds();
-	typename vector<MolRef>::iterator cur_mol;
+	vector<sMolRef> compounds = structures->get_compounds();
+	typename vector<sMolRef>::iterator cur_mol;
 	int comp_nr = 0;
 	OBSmartsPattern * sp = feat_ptr->get_smarts_pattern();
 	
