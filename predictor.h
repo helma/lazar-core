@@ -99,13 +99,10 @@ class Predictor {
 		void loo_predict();
 
 		//! predict a test structure
-		void predict(MolRef test_compound, bool recalculate, bool verbose);
+		void predict(sMolRef test_compound, bool recalculate, bool verbose);
 
 		//! predict the activity act for the query structure
-		void knn_predict(MolRef test, string act, bool verbose);
-
-		//! determine similarities with for the query structure
-		void similarities(MolRef test_compound);
+		void knn_predict(sMolRef test, string act, bool verbose);
 
 		void print_neighbors(string act);
 
@@ -152,9 +149,9 @@ void Predictor<MolType, FeatureType, ActivityType>::predict_ext() {
 
 			// recalculate frequencies and and significance only for the first time
 			if (n == 0)
-				this->predict(cur_mol.get(), true);
+				this->predict(cur_mol, true);
 			else
-				this->predict(cur_mol.get(), false);
+				this->predict(cur_mol, false);
 
 		}
 
@@ -164,9 +161,9 @@ template <class MolType, class FeatureType, class ActivityType>
 void Predictor<MolType, FeatureType, ActivityType>::predict_file() {
 
 		bool recalculate = true;
-		typename vector<MolRef>::iterator cur_dup;
+		typename vector<sMolRef>::iterator cur_dup;
 
-		MolRef cur_mol;
+		sMolRef cur_mol;
 		int test_size = test_structures->get_size();
 
 		for (int n = 0; n < test_size; n++) {
@@ -183,7 +180,7 @@ void Predictor<MolType, FeatureType, ActivityType>::predict_file() {
 			*out << "Looking for " << cur_mol->get_smiles() << " in the training set\n";
 			out->print_err();
 
-			vector<MolRef> duplicates = train_structures->remove_duplicates(cur_mol);
+			vector<sMolRef> duplicates = train_structures->remove_duplicates(cur_mol);
 
 			if (duplicates.size() > 1) {
 				*out << int(duplicates.size()) << " instances of " << cur_mol->get_smiles() << " in the training set!\n";
@@ -258,7 +255,7 @@ void Predictor<MolType, FeatureType, ActivityType>::loo_predict() {
 			out->print_err();
 		}
 		// predict by recalculating significance values
-		this->predict(cur_mol.get(),true,false);
+		this->predict(cur_mol,true,false);
 
         // recover query compound as train structure for the next round
 		if (duplicates.size() >= 1) {
@@ -301,13 +298,13 @@ void Predictor<MolType, FeatureType, ActivityType>::predict_smi(string smiles) {
 			out->print_err();
 		}
 		else if (duplicates.size() > 0) {
-			this->predict(cur_mol.get(), true, true);
+			this->predict(cur_mol, true, true);
 		}
 		else if (recalculate) {
-			this->predict(cur_mol.get(), true, true);
+			this->predict(cur_mol, true, true);
 		}
 		else
-			this->predict(cur_mol.get(), false, true);
+			this->predict(cur_mol, false, true);
 
 		// restore duplicates for batch predictions
 
@@ -320,7 +317,7 @@ void Predictor<MolType, FeatureType, ActivityType>::predict_smi(string smiles) {
 };
 
 template <class MolType, class FeatureType, class ActivityType>
-void Predictor<MolType, FeatureType, ActivityType>::predict(MolRef test, bool recalculate, bool verbose=true) {
+void Predictor<MolType, FeatureType, ActivityType>::predict(sMolRef test, bool recalculate, bool verbose=true) {
 
 	vector<ActivityType> activity_values;
 	vector<string> activity_names = train_structures->get_activity_names();
@@ -389,19 +386,7 @@ void Predictor<MolType, FeatureType, ActivityType>::predict(MolRef test, bool re
 
 
 template <class MolType, class FeatureType, class ActivityType>
-void Predictor<MolType, FeatureType, ActivityType>::similarities(MolRef test) {
-
-	vector<MolRef> compounds  = train_structures->get_compounds();
-	typename vector<MolRef>::iterator cur_mol;
-
-	for (cur_mol=compounds.begin();cur_mol!=compounds.end();cur_mol++) {
-		(*cur_mol)->calc_similarity(test);
-	}
-
-};
-
-template <class MolType, class FeatureType, class ActivityType>
-void Predictor<MolType, FeatureType, ActivityType>::knn_predict(MolRef test, string act, bool verbose=true)  {
+void Predictor<MolType, FeatureType, ActivityType>::knn_predict(sMolRef test, string act, bool verbose=true)  {
 
 	// determine neighbors
 	train_structures->get_neighbors(act, &neighbors);
@@ -462,6 +447,7 @@ void Predictor<MolType, FeatureType, ActivityType>::set_output(shared_ptr<Out> n
 
 };
 
+/*
 template <class MolType, class FeatureType, class ActivityType>
 vector<map<string, vector<ActivityType> > > Predictor<MolType, FeatureType, ActivityType>::y_scrambling() {
 
@@ -500,5 +486,5 @@ vector<map<string, vector<ActivityType> > > Predictor<MolType, FeatureType, Acti
 	return act_ori;
 
 }
-
+*/
 

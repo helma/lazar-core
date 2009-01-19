@@ -60,13 +60,13 @@ class MolVect {
 		};
 
 		//! determine common features with the training compounds. Results are used to find neighbors later.
-		void common_features(MolRef test_compound);
+		void common_features(sMolRef test_compound);
 
 		//! Determine similarity as weighted tanimoto index.
-		void relevant_features(MolRef test, string act);
+		void relevant_features(sMolRef test, string act);
 
 		//! determine unknown features
-		void determine_unknown(string act, MolRef test);
+		void determine_unknown(string act, sMolRef test);
 
 		//! remove duplicates of the query structure
 		vector<sMolRef> remove_duplicates(sMolRef test_comp);
@@ -200,23 +200,23 @@ vector<shared_ptr<FeatMol < MolType, FeatureType, ActivityType > > > MolVect<Mol
 };
 
 template <class MolType, class FeatureType, class ActivityType>
-void MolVect<MolType, FeatureType, ActivityType>::common_features(MolRef test) {
+void MolVect<MolType, FeatureType, ActivityType>::common_features(sMolRef test) {
 
 	typename vector<sMolRef>::iterator cur_mol;
 
 	for (cur_mol=compounds.begin();cur_mol!=compounds.end();cur_mol++) {
-		(*cur_mol)->common_features(test);
+		(*cur_mol)->common_features(test.get());
 	}
 
 };
 
 template <class MolType, class FeatureType, class ActivityType>
-void MolVect<MolType, FeatureType, ActivityType>::relevant_features(MolRef test, string act) {
+void MolVect<MolType, FeatureType, ActivityType>::relevant_features(sMolRef test, string act) {
 
 	typename vector<sMolRef>::iterator cur_mol;
 
 	for (cur_mol=compounds.begin();cur_mol!=compounds.end();cur_mol++) {
-		(*cur_mol)->relevant_features(test, act);
+		(*cur_mol)->relevant_features(test.get(), act);
 	}
 
 };
@@ -266,7 +266,7 @@ void MolVect<MolType, FeatureType, ActivityType>::get_neighbors(string act, vect
 
 
 template <class MolType, class FeatureType, class ActivityType>
-void MolVect<MolType, FeatureType, ActivityType>::determine_unknown(string act, MolRef test) {
+void MolVect<MolType, FeatureType, ActivityType>::determine_unknown(string act, sMolRef test) {
 
     vector<Feature<FeatureType> *> feats = test->get_features();
     typename vector<Feature<FeatureType> *>::iterator cur_feat;
