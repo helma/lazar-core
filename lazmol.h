@@ -102,6 +102,7 @@ class FeatMol: public MolType {
 
 	typedef vector<Feature<FeatureType> *> FeatVect;
 	typedef FeatMol<MolType,FeatureType,ActivityType> * MolRef;
+	typedef shared_ptr<FeatMol<MolType,FeatureType,ActivityType> > sMolRef;
 	typedef vector<FeatMol < MolType, ClassFeat, bool > * > ClassMolVect;
 	typedef vector<FeatMol < MolType, RegrFeat, float > * > RegrMolVect;
 	typedef vector<FeatMol<MolType,FeatureType,ActivityType>*> MolVect;
@@ -181,7 +182,7 @@ class FeatMol: public MolType {
 		}
 		void print_db_activity(string act, bool loo);
 
-		void copy_activities(MolRef test_mol);
+		void copy_activities(sMolRef test_mol);
 
 		void clear_db_activities() { db_activities.clear(); };
 
@@ -214,7 +215,7 @@ class FeatMol: public MolType {
 
 		void clear_features() { features.clear(); };
 
-		void common_features(MolRef test);
+		void common_features(sMolRef test);
 
 		FeatVect get_common_features() { return(common_feat); };
 
@@ -228,7 +229,7 @@ class FeatMol: public MolType {
 		vector<ActivityType> get_act(string act) { return(activities[act]); }
 
 		//! needs inchi strings
-		bool equal(const MolRef mol);
+		bool equal(const sMolRef mol);
 
 		float get_similarity();
 
@@ -788,7 +789,7 @@ void FeatMol<MolType,FeatureType,ActivityType>::print_db_activity(string act, bo
 
 
 template <typename MolType, typename FeatureType, typename ActivityType>
-void FeatMol<MolType,FeatureType,ActivityType>::copy_activities(MolRef test_mol) {
+void FeatMol<MolType,FeatureType,ActivityType>::copy_activities(sMolRef test_mol) {
 	test_mol->set_db_activities(activities);
 };
 
@@ -971,7 +972,7 @@ void FeatMol<MolType,FeatureType,ActivityType>::common_features(MolRef m1, MolRe
 };
 
 template <typename MolType, typename FeatureType, typename ActivityType>
-void FeatMol<MolType,FeatureType,ActivityType>::common_features(MolRef test) {
+void FeatMol<MolType,FeatureType,ActivityType>::common_features(sMolRef test) {
 
 	pred_features.clear();
 	common_feat.clear();
@@ -1085,7 +1086,7 @@ float FeatMol<MolType,FeatureType,ActivityType>::get_similarity() {
 };
 
 template <typename MolType, typename FeatureType, typename ActivityType>
-bool FeatMol<MolType,FeatureType,ActivityType>::equal(const MolRef mol) {
+bool FeatMol<MolType,FeatureType,ActivityType>::equal(const sMolRef mol) {
 
 	if (this->get_inchi() != "" && mol->get_inchi() != "")
 			return(this->get_inchi() == mol->get_inchi());

@@ -190,8 +190,8 @@ vector<shared_ptr<FeatMol < MolType, FeatureType, ActivityType > > > MolVect<Mol
 	test_comp->clear_db_activities();
 
 	for (cur_mol=compounds.begin();cur_mol!=compounds.end();cur_mol++) {
-		if ((*cur_mol)->equal(test_comp.get())) {
-			(*cur_mol)->copy_activities(test_comp.get()); // copy database activities to test structure (for external predictions)
+		if ((*cur_mol)->equal(test_comp)) {
+			(*cur_mol)->copy_activities(test_comp); // copy database activities to test structure (for external predictions)
 			duplicates.push_back((*cur_mol));
 			(*cur_mol)->remove();
 		}
@@ -205,7 +205,7 @@ void MolVect<MolType, FeatureType, ActivityType>::common_features(sMolRef test) 
 	typename vector<sMolRef>::iterator cur_mol;
 
 	for (cur_mol=compounds.begin();cur_mol!=compounds.end();cur_mol++) {
-		(*cur_mol)->common_features(test.get());
+		(*cur_mol)->common_features(test);
 	}
 
 };
