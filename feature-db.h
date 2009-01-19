@@ -32,6 +32,7 @@ class FeatMolVect: public MolVect<MolType,FeatureType,ActivityType> {
 	public:
 
 		typedef FeatMol < MolType, FeatureType, ActivityType > * MolRef ;
+		typedef shared_ptr<FeatMol < MolType, FeatureType, ActivityType > > sMolRef ;
 		typedef Feature<FeatureType> * FeatRef;
 
 	private:
@@ -52,7 +53,7 @@ class FeatMolVect: public MolVect<MolType,FeatureType,ActivityType> {
 		//! read features from a file
 		void read_features(char * feat_file);
 
-		void add_feature(MolRef s, string name);
+		void add_feature(sMolRef s, string name);
 
 		void copy_level(vector<Feature<FeatureType> *> * level, MolRef test_comp);
 
@@ -142,7 +143,7 @@ FeatMolVect<MolType, FeatureType, ActivityType>::FeatMolVect(char * feat_file, c
 };
 
 template <class MolType, class FeatureType, class ActivityType>
-void FeatMolVect<MolType, FeatureType, ActivityType>::add_feature(MolRef s, string name) {
+void FeatMolVect<MolType, FeatureType, ActivityType>::add_feature(sMolRef s, string name) {
 
 	typename map<const string, FeatRef>::iterator pos;
 	pos = feature_map.find(name);

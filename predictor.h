@@ -142,7 +142,7 @@ void Predictor<MolType, FeatureType, ActivityType>::predict_ext() {
 			cur_mol = test_structures->get_compound(n);
 			//delete feat_gen;
 			feat_gen.reset( new FeatGen <MolType, FeatureType, ActivityType>(a_file, train_structures, cur_mol,out) );
-			feat_gen->generate_linfrag(train_structures,cur_mol.get());
+			feat_gen->generate_linfrag(train_structures,cur_mol);
 
 			*out << "Predicting external test id " << cur_mol->get_id() << endl;
 			out->print_err();
@@ -290,8 +290,8 @@ void Predictor<MolType, FeatureType, ActivityType>::predict_smi(string smiles) {
 		duplicates = train_structures->remove_duplicates(cur_mol);
 
 		//delete feat_gen;
-        feat_gen.reset( new FeatGen <MolType, FeatureType, ActivityType>(a_file, train_structures, cur_mol.get(),out)) ;
-		feat_gen->generate_linfrag(train_structures,cur_mol.get());
+        feat_gen.reset( new FeatGen <MolType, FeatureType, ActivityType>(a_file, train_structures, cur_mol,out)) ;
+		feat_gen->generate_linfrag(train_structures,cur_mol);
 
 		if (duplicates.size() > 1) {
 			*out << int(duplicates.size()) << " instances of " << cur_mol->get_smiles() << " in the training set!\n";

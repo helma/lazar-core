@@ -72,7 +72,7 @@ class FeatGen {
 		void generate_linfrag();
 
 		//! generate linear fragments that occur in test_mol and train_structures
-		void generate_linfrag(shared_ptr<FeatMolVect< MolType, FeatureType, ActivityType > > train_structures, MolRef test_mol);
+		void generate_linfrag(shared_ptr<FeatMolVect< MolType, FeatureType, ActivityType > > train_structures, sMolRef test_mol);
 
 		//! Prints testset for random selection
 		void generate_testset(int p, Out* out);
@@ -105,9 +105,9 @@ class FeatGen {
 
 		void match(OBLinFragRef feat_ptr);
 
-		void match(MolRef test_comp);
+		void match(sMolRef test_comp);
 
-		void copy_level(FeatMolVect<MolType, FeatureType, ActivityType> * f, MolRef test_comp);
+		void copy_level(FeatMolVect<MolType, FeatureType, ActivityType> * f, sMolRef test_comp);
 
 		void alphabet2level();
 		
@@ -143,7 +143,7 @@ void FeatGen<MolType, FeatureType, ActivityType>::generate_linfrag() {
 };
 
 template <class MolType, class FeatureType, class ActivityType>
-void FeatGen<MolType, FeatureType, ActivityType>::generate_linfrag(shared_ptr<FeatMolVect< MolType, FeatureType, ActivityType > > train_structures, MolRef test_comp) {
+void FeatGen<MolType, FeatureType, ActivityType>::generate_linfrag(shared_ptr<FeatMolVect< MolType, FeatureType, ActivityType > > train_structures, sMolRef test_comp) {
 
 	level = alphabet;
 
@@ -444,7 +444,7 @@ void FeatGen<MolType, FeatureType, ActivityType>::refine_rex(int l) {
 };
 
 template <class MolType, class FeatureType, class ActivityType>
-void FeatGen<MolType, FeatureType, ActivityType>::match(MolRef test_comp) {
+void FeatGen<MolType, FeatureType, ActivityType>::match(sMolRef test_comp) {
 
 	typename vector<OBLinFragRef>::iterator frag;
 	for (frag = level.begin(); frag != level.end(); frag++) {
@@ -529,7 +529,7 @@ vector< Feature< OBLinFrag> * >  FeatGen<MolType, FeatureType, ActivityType>::ge
 }
 
 template <class MolType, class FeatureType, class ActivityType>
-void FeatGen<MolType, FeatureType, ActivityType>::copy_level(FeatMolVect<MolType, FeatureType, ActivityType> * f, MolRef test_comp) {
+void FeatGen<MolType, FeatureType, ActivityType>::copy_level(FeatMolVect<MolType, FeatureType, ActivityType> * f, sMolRef test_comp) {
 
 	typename vector<OBLinFragRef>::iterator frag;
 	typename map<const string, Feature<FeatureType> *>::iterator pos;
