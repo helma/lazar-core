@@ -64,7 +64,7 @@ class FeatGen {
 		};
 
 		// AM: from LOO 
-		FeatGen< MolType, FeatureType, ActivityType >(char * alphabet_file, shared_ptr<MolVect< MolType, FeatureType, ActivityType > > s, MolRef mol, shared_ptr<Out> out): structures(s), out(out) {
+		FeatGen< MolType, FeatureType, ActivityType >(char * alphabet_file, shared_ptr<MolVect< MolType, FeatureType, ActivityType > > s, sMolRef mol, shared_ptr<Out> out): structures(s), out(out) {
 			this->read_smarts(alphabet_file,false,false);
 		};
 

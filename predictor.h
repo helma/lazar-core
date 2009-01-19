@@ -141,7 +141,7 @@ void Predictor<MolType, FeatureType, ActivityType>::predict_ext() {
 		for (int n = 0; n < test_size; n++) {
 			cur_mol = test_structures->get_compound(n);
 			//delete feat_gen;
-			feat_gen.reset( new FeatGen <MolType, FeatureType, ActivityType>(a_file, train_structures, cur_mol.get(),out) );
+			feat_gen.reset( new FeatGen <MolType, FeatureType, ActivityType>(a_file, train_structures, cur_mol,out) );
 			feat_gen->generate_linfrag(train_structures,cur_mol.get());
 
 			*out << "Predicting external test id " << cur_mol->get_id() << endl;
