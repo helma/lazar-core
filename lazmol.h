@@ -219,12 +219,12 @@ class FeatMol: public MolType {
 
 		FeatVect get_common_features() { return(common_feat); };
 
-		void common_features(MolRef m1, MolRef m2, FeatVect* inter, FeatVect* uni);
+		void common_features(sMolRef m1, sMolRef m2, FeatVect* inter, FeatVect* uni);
 
-		void relevant_features(MolRef test, string act);
+		void relevant_features(sMolRef test, string act);
 
 		//! Determine similarity of two compounds as weighted Tanimoto index
-		float get_similarity(MolRef m1, MolRef m2, string act);
+		float get_similarity(sMolRef m2, string act, sMolRef m1);
 
 		vector<ActivityType> get_act(string act) { return(activities[act]); }
 
@@ -707,9 +707,11 @@ void FeatMol<MolType,FeatureType,ActivityType>::calculate_gram_matrix(MolVect * 
 	// calculate upper right
 	unsigned int n1=0;
 	for (cur_n = neighbors->begin(); cur_n != neighbors->end(); cur_n++) {
+        sMolRef sn1 (*cur_n);
 		unsigned int n2=n1;
 		for (cur_n2 = cur_n; cur_n2 != neighbors->end(); cur_n2++) {
-			float tan = gauss(get_similarity((*cur_n), (*cur_n2), act));
+            sMolRef sn2 (*cur_n2);
+			float tan = gauss(get_similarity(sn2, act, sn1));
 			gsl_matrix_set(gram_matrix,n1,n2,tan);
 			n2++;
 		}
@@ -950,7 +952,7 @@ void FeatMol<MolType,FeatureType,ActivityType>::add_feature(Feature<FeatureType>
 
 
 template <typename MolType, typename FeatureType, typename ActivityType>
-void FeatMol<MolType,FeatureType,ActivityType>::common_features(MolRef m1, MolRef m2, FeatVect* inter, FeatVect* uni) {
+void FeatMol<MolType,FeatureType,ActivityType>::common_features(sMolRef m1, sMolRef m2, FeatVect* inter, FeatVect* uni) {
 
 	inter->clear();
 	uni->clear();
@@ -994,7 +996,7 @@ void FeatMol<MolType,FeatureType,ActivityType>::common_features(sMolRef test) {
 };
 
 template <typename MolType, typename FeatureType, typename ActivityType>
-float FeatMol<MolType,FeatureType,ActivityType>::get_similarity(MolRef m1, MolRef m2, string act) {
+float FeatMol<MolType,FeatureType,ActivityType>::get_similarity(sMolRef m2, string act, sMolRef m1=sMolRef()) {
 	float tanimoto;
 	typename FeatVect::iterator cur_feat;
 
@@ -1006,7 +1008,7 @@ float FeatMol<MolType,FeatureType,ActivityType>::get_similarity(MolRef m1, MolRe
 	FeatVect suni, sinter, uv, iv;
 
 	// compose union and intersect sets
-	if (m1 != this) {
+	if (m1 != sMolRef()) {
 		// sim between two training compounds: calculate sets
 		common_features(m1,m2,&iv,&uv);
 	}
@@ -1057,7 +1059,7 @@ float FeatMol<MolType,FeatureType,ActivityType>::get_similarity(MolRef m1, MolRe
 	}
 
 	// for similarity to test structure, additionally punish unknown fragments
-	if (m1 == this) {
+	if (m1 == sMolRef()) {
 		float known_fraction = float(features.size()) / float(features.size() + unknown_features.size());
 		tanimoto = known_fraction * tanimoto;
 	}
@@ -1069,9 +1071,9 @@ float FeatMol<MolType,FeatureType,ActivityType>::get_similarity(MolRef m1, MolRe
 
 
 template <typename MolType, typename FeatureType, typename ActivityType>
-void FeatMol<MolType,FeatureType,ActivityType>::relevant_features(MolRef test, string act) {
+void FeatMol<MolType,FeatureType,ActivityType>::relevant_features(sMolRef test, string act) {
 
-	similarity = get_similarity(this, test, act);
+	similarity = get_similarity(test, act);
 
 };
 

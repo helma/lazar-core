@@ -216,7 +216,7 @@ void MolVect<MolType, FeatureType, ActivityType>::relevant_features(sMolRef test
 	typename vector<sMolRef>::iterator cur_mol;
 
 	for (cur_mol=compounds.begin();cur_mol!=compounds.end();cur_mol++) {
-		(*cur_mol)->relevant_features(test.get(), act);
+		(*cur_mol)->relevant_features(test, act);
 	}
 
 };
