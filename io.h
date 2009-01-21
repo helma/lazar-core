@@ -1,6 +1,5 @@
 /* Copyright (C) 2005  Christoph Helma <helma@in-silico.de> 
 
-   
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -17,16 +16,15 @@
 
 */
 
+#ifndef IO_H
+#define IO_H
+
 #include <string>	
 #include <iostream>
 #include <sstream>
 
 #include "ServerSocket.h"		// socket library
 #include "boost/smart_ptr.hpp"
-
-
-#ifndef IO_class
-#define IO_class
 
 using namespace std;
 using namespace boost;

@@ -17,11 +17,10 @@
 
 */
 
+#ifndef FEATURE_DB_H
+#define FEATURE_DB_H
 
 #include "lazmolvect.h"
-
-#ifndef F_DB_H
-#define F_DB_H
 
 using namespace std;
 
@@ -177,4 +176,5 @@ void FeatMolVect<MolType, FeatureType, ActivityType>::copy_level(vector<Feature<
 	}
 
 };
-#endif // F_DB_H
+
+#endif

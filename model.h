@@ -15,15 +15,17 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 */
+
+#ifndef MODEL_H
+#define MODEL_H
+
 #include <math.h>
-#include "io.h"
 #include <sstream>
 #include <iostream>
 #include <iomanip>
-#include "openbabel/obconversion.h"
 #include <stdlib.h>
 #include <stdio.h>
-
+#include <time.h>
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>
 #include <gsl/gsl_blas.h>
@@ -31,14 +33,10 @@
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_matrix.h>
 
-#include "utils.h"
+#include "openbabel/obconversion.h"
 #include "feature.h"
 #include "lazmol.h"
-
-#include <time.h>
-
-#ifndef MODEL_H
-#define MODEL_H
+#include "io.h"
 
 using namespace std;
 using namespace OpenBabel;

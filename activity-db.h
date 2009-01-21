@@ -17,6 +17,9 @@
 
 */
 
+#ifndef ACTIVTIY_DB_H
+#define ACTIVITY_DB_H
+
 #include "feature-db.h"
 
 using namespace std;
@@ -400,4 +403,4 @@ void ActMolVect<MolType, FeatureType, ActivityType>::feature_significance(string
 
 };
 
-
+#endif

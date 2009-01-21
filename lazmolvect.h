@@ -16,17 +16,18 @@
 
 */
 
-
-#include "lazmol.h"
-#include <string>
-
 #ifndef LAZMOLVECT_H
 #define LAZMOLVECT_H
+
+#include <string>
+
+#include "lazmol.h"
 
 using namespace std;
 using namespace OpenBabel;
 
 extern bool quantitative;
+extern void remove_dos_cr(string* str);
 
 //! container for LazMol objects
 template <class MolType, class FeatureType, class ActivityType>
@@ -339,4 +340,4 @@ FeatMol < MolType, FeatureType, ActivityType > *  MolVect<MolType, FeatureType, 
 
 };
 
-#endif // LAZMOLVECT_H
+#endif

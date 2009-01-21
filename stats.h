@@ -1,4 +1,23 @@
-// taken from c++ cookbook and 
+/* Copyright (C) 2005  Christoph Helma <helma@in-silico.de>
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+*/
+
+#ifndef STATS_H
+#define STATS_H
 
 #include <numeric>
 #include <cmath>
@@ -6,9 +25,6 @@
 #include <functional>
 #include <vector>
 #include <iostream>
-
-#ifndef STATS_H
-#define STATS_H
 
 using namespace std;
 
@@ -108,6 +124,7 @@ class pc <bool> {
 	}
 };
 
+// taken from C++ Cookbook
 template <>
 class pc <float> {
 	public:
@@ -152,11 +169,10 @@ class pc <float> {
 			result = 0;
 		}
 		else {
-//			cerr << "s: " << s << " xv: " << xv << " yv: " << yv << endl;
 			result = s/(sqrt(xv)*sqrt(yv));
 		}
 		return result;
 	}
 };
 
-#endif // STATS_H
+#endif

@@ -6,8 +6,8 @@ FEAT_GEN = rex linfrag smarts-features
 TOOLS = chisq-filter #pcprop
 INSTALLDIR = /usr/local/bin
 
-OBJ = feature.o lazmol.o io.o utils.o rutils.o
-HEADERS = lazmolvect.h feature.h lazmol.h io.h ServerSocket.h Socket.h utils.h feature-generation.h rutils.h
+OBJ = feature.o lazmol.o io.o rutils.o
+HEADERS = lazmolvect.h feature.h lazmol.h io.h ServerSocket.h Socket.h feature-generation.h rutils.h
 SERVER_OBJ = ServerSocket.o Socket.o
 OBJ += $(SERVER_OBJ)
 
@@ -63,8 +63,6 @@ feature.o: feature.h
 io.o: io.cpp io.h $(SERVER_OBJ)
 
 rutils.o: rutils.h
-
-utils.o: utils.h
 
 .PHONY:
 clean:

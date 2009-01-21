@@ -16,6 +16,9 @@
 
 */
 
+#ifndef LAZMOL_H
+#define LAZMOL_H
+
 #include <math.h>
 #include "io.h"
 #include "stats.h"
@@ -37,11 +40,7 @@
 #include <list>
 #include <time.h>
 
-#include "utils.h"
 #include "rutils.h"
-
-#ifndef LAZMOL_H
-#define LAZMOL_H
 
 using namespace std;
 using namespace OpenBabel;
@@ -1168,4 +1167,4 @@ class greater_sim {
         }
 };
 
-#endif // LAZMOL_H
+#endif

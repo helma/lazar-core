@@ -1,6 +1,5 @@
 /* Copyright (C) 2005  Christoph Helma <helma@in-silico.de> 
 
-   
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -17,17 +16,18 @@
 
 */
 
-
-#include "feature-db.h"
+#ifndef FEATURE_GENERATION_H
+#define FEATURE_GENERATION_H
 
 #include <openbabel/babelconfig.h>
-
 #include <openbabel/mol.h>
 #include <openbabel/groupcontrib.h>
 #include <openbabel/obconversion.h>
 #include <unistd.h>
-#include "boost/smart_ptr.hpp"
 #include <memory>
+
+#include "feature-db.h"
+#include "boost/smart_ptr.hpp"
 
 using namespace std;
 using namespace OpenBabel;
@@ -558,3 +558,5 @@ template <class MolType, class FeatureType, class ActivityType>
 void  FeatGen<MolType, FeatureType, ActivityType>::alphabet2level() {
 	level = alphabet;
 }
+
+#endif

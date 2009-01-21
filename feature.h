@@ -16,25 +16,25 @@
 
 */
 
+#ifndef FEATURE_H
+#define FEATURE_H
+
+#include <string>
+#include <vector>
+#include <iterator>
+#include <map>
+#include <sstream>
 #include <gsl/gsl_cdf.h>
 #include <gsl/gsl_randist.h>
 #include <gsl/gsl_sort.h>
 #include <gsl/gsl_statistics.h>
-#include <string>
-#include <vector>
-#include <iterator>
 #include <openbabel/mol.h>
 #include <openbabel/parsmart.h>
-#include <map>
-#include <sstream>
-#include "io.h"
 
-#ifndef FEATURE_H
-#define FEATURE_H
+#include "io.h"
 
 using namespace std;
 using namespace OpenBabel;
-
 
 //! the basic feature class
 class Feat {
@@ -359,4 +359,4 @@ public:
     }
 };
 
-#endif // FEATURE_H
+#endif

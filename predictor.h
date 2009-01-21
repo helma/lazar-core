@@ -1,6 +1,5 @@
 /* Copyright (C) 2005  Christoph Helma <helma@in-silico.de>
 
-
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -17,12 +16,14 @@
 
 */
 
+#ifndef PREDICTOR_H
+#define PREDICTOR_H
 
+#include "boost/smart_ptr.hpp"
 #include "feature-generation.h"
 #include "activity-db.h"
 #include "model.h"
 #include "time.h"
-#include "boost/smart_ptr.hpp"
 
 using namespace std;
 using namespace OpenBabel;
@@ -412,8 +413,7 @@ void Predictor<MolType, FeatureType, ActivityType>::knn_predict(sMolRef test, st
 	*out << "unknown_features:\n";
 	test->print_unknown(act);
 	out->print();
-
-	test->delete_unknown();
+    test->delete_unknown();
 
 };
 
@@ -490,3 +490,4 @@ vector<map<string, vector<ActivityType> > > Predictor<MolType, FeatureType, Acti
 }
 */
 
+#endif
