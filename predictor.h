@@ -413,6 +413,8 @@ void Predictor<MolType, FeatureType, ActivityType>::knn_predict(sMolRef test, st
 	test->print_unknown(act);
 	out->print();
 
+	test->delete_unknown();
+
 };
 
 template <class MolType, class FeatureType, class ActivityType>
