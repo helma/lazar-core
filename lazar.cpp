@@ -18,11 +18,11 @@
 */
 
 
-#include "predictor.h"
 #include <getopt.h>
-#include "rutils.h"
 #include <memory>
 #include "boost/smart_ptr.hpp"
+
+#include "predictor.h"
 
 using namespace std;
 using namespace boost;
