@@ -33,21 +33,18 @@ class FeatMolVect: public MolVect<MolType,FeatureType,ActivityType> {
 		typedef FeatMol < MolType, FeatureType, ActivityType > * MolRef ;
 		typedef shared_ptr<FeatMol < MolType, FeatureType, ActivityType > > sMolRef ;
 		typedef Feature<FeatureType> * FeatRef;
+		typedef shared_ptr<Feature<FeatureType> > sFeatRef;
 
 	private:
 
-		map<const string, FeatRef> feature_map;		// lookup features by name
-		vector<FeatRef> features;
+		map<const string, sFeatRef> feature_map;		// lookup features by name
+		vector<sFeatRef> features;
 		shared_ptr<Out> out;
 
 	public:
 
 		FeatMolVect< MolType, FeatureType, ActivityType >(char * feat_file, char * structure_file, shared_ptr<Out> out); 
-        ~FeatMolVect() {
-            for (unsigned int i=0; i<features.size(); i++) {
-                delete features[i];
-            }
-        }
+        ~FeatMolVect() {};
 
 		//! read features from a file
 		void read_features(char * feat_file);
@@ -56,7 +53,7 @@ class FeatMolVect: public MolVect<MolType,FeatureType,ActivityType> {
 
 		void copy_level(vector<Feature<FeatureType> *> * level, MolRef test_comp);
 
-		vector<FeatRef> * get_features() { return(&features); };
+		vector<sFeatRef> * get_features() { return(&features); };
 };
 
 // read a feature file
@@ -75,7 +72,7 @@ FeatMolVect<MolType, FeatureType, ActivityType>::FeatMolVect(char * feat_file, c
 	string line;
 	string tmp_field;
 	int line_nr =1;
-	FeatRef feat_ptr;
+    sFeatRef feat_ptr;
 
 	*out << "Reading features from " << feat_file << endl;
 	out->print_err();
@@ -89,7 +86,7 @@ FeatMolVect<MolType, FeatureType, ActivityType>::FeatMolVect(char * feat_file, c
 
 			if (i==0) {		// SMARTS
 
-				feat_ptr = new Feature<FeatureType>(tmp_field); // initialize Feature with smarts 
+				feat_ptr.reset( new Feature<FeatureType>(tmp_field) ); // initialize Feature with smarts 
 				feature_map[tmp_field] = feat_ptr;
 				features.push_back(feat_ptr);
 
@@ -144,7 +141,7 @@ FeatMolVect<MolType, FeatureType, ActivityType>::FeatMolVect(char * feat_file, c
 template <class MolType, class FeatureType, class ActivityType>
 void FeatMolVect<MolType, FeatureType, ActivityType>::add_feature(sMolRef s, string name) {
 
-	typename map<const string, FeatRef>::iterator pos;
+	typename map<const string, sFeatRef>::iterator pos;
 	pos = feature_map.find(name);
 
 	if (pos != feature_map.end())

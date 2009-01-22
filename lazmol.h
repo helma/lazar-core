@@ -99,7 +99,8 @@ class OBLazMol: public LazMol {
 template <typename MolType, typename FeatureType, typename ActivityType>
 class FeatMol: public MolType {
 
-	typedef vector<Feature<FeatureType> *> FeatVect;
+	typedef shared_ptr<Feature<FeatureType> > sFeatRef;
+	typedef vector<sFeatRef> FeatVect;
 	typedef FeatMol<MolType,FeatureType,ActivityType> * MolRef;
 	typedef shared_ptr<FeatMol<MolType,FeatureType,ActivityType> > sMolRef;
 	typedef vector<FeatMol < MolType, ClassFeat, bool > * > ClassMolVect;
@@ -137,7 +138,7 @@ class FeatMol: public MolType {
 		FeatMol(int i, string id, string smi): MolType(i, id, smi), similarity(0) {};
 		FeatMol(int i, string id, string smi, shared_ptr<Out> out): MolType(i, id, smi, out), similarity(0), out(out) {};
 
-		bool find_f_in_n(RegrFeat* f, shared_ptr<FeatMol<MolType,RegrFeat,float> > n);
+		bool find_f_in_n(shared_ptr<RegrFeat> f, shared_ptr<FeatMol<MolType,RegrFeat,float> > n);
 
 		void extend_matrix(gsl_matrix** X_p, gsl_vector* v);
 		void extend_vector(gsl_vector** x_p, float f);
@@ -150,7 +151,7 @@ class FeatMol: public MolType {
 
 		bool singular(gsl_vector* x); //!< Objective feature selection: singularity of feature
 
-		void build_fv(float* qp, gsl_vector* fv, sRegrMolVect* n, RegrFeat* f);
+		void build_fv(float* qp, gsl_vector* fv, sRegrMolVect* n, shared_ptr<RegrFeat> f);
 
 		bool build_descriptors_pca(FeatVect* lrf, sRegrMolVect* n, unsigned int no_c, gsl_matrix** X_p, gsl_vector** x_p, string act, float* qdist, float* med_ndist, float* std_ndist, float* max_ndist); //!< Build data matrix X using objective feature selection and principal components analysis
 
@@ -160,7 +161,7 @@ class FeatMol: public MolType {
 
 		float calculate_confidence(sMolVect* n, string act); //!< Calculate confidence using neighbor similarities and activities
 
-		void unite_features(vector<Feature<FeatureType> *>* lr_features, sRegrMolVect * neighbors);
+		void unite_features(vector<sFeatRef>* lr_features, sRegrMolVect * neighbors);
 
 		void extract_neighbors(sRegrMolVect* np, multimap<float,sMolRef>* sim_sorted_neighbors);
 
@@ -213,7 +214,7 @@ class FeatMol: public MolType {
 
 		void print_features(string act);
 
-		void add_feature(Feature<FeatureType> * feat);
+		void add_feature(sFeatRef feat);
 
 		void clear_features() { features.clear(); };
 
@@ -256,7 +257,7 @@ class FeatMol: public MolType {
 };
 
 template <typename MolType, typename FeatureType, typename ActivityType>
-bool FeatMol<MolType,FeatureType,ActivityType>::find_f_in_n(RegrFeat* f, shared_ptr<FeatMol<MolType,RegrFeat,float> > n=shared_ptr<FeatMol<MolType,RegrFeat,float> >()) {
+bool FeatMol<MolType,FeatureType,ActivityType>::find_f_in_n(shared_ptr<RegrFeat> f, shared_ptr<FeatMol<MolType,RegrFeat,float> > n=shared_ptr<FeatMol<MolType,RegrFeat,float> >()) {
 	FeatVect fv;
 	FeatVect* fvp = &fv;
     if (n!=shared_ptr<FeatMol<MolType,RegrFeat,float> >()) (*fvp) = n->get_features();
@@ -380,7 +381,7 @@ bool FeatMol<MolType,FeatureType,ActivityType>::singular(gsl_vector* x) {
 }
 
 template <typename MolType, typename FeatureType, typename ActivityType>
-void FeatMol<MolType,FeatureType,ActivityType>::build_fv(float* qp, gsl_vector* fv, sRegrMolVect* n, RegrFeat* f) {
+void FeatMol<MolType,FeatureType,ActivityType>::build_fv(float* qp, gsl_vector* fv, sRegrMolVect* n, shared_ptr<RegrFeat> f) {
 	typename sRegrMolVect::iterator n_it;
 	unsigned int i = 0;
 
@@ -404,8 +405,8 @@ bool FeatMol<MolType,FeatureType,ActivityType>::build_descriptors_pca(FeatVect* 
 
 
 	//sort features
-	multimap<float, Feature<RegrFeat>*> ms_features;
-	typename multimap<float, Feature<RegrFeat>*>::reverse_iterator sf;
+	multimap<float, shared_ptr<Feature<RegrFeat> > > ms_features;
+	typename multimap<float, shared_ptr<Feature<RegrFeat> > >::reverse_iterator sf;
 
 	ms_features.clear();
 	for (cur_feat = lrf->begin(); cur_feat != lrf->end(); cur_feat++) {
@@ -633,7 +634,7 @@ float FeatMol<MolType,FeatureType,ActivityType>::calculate_confidence(sMolVect* 
 }
 
 template <typename MolType, typename FeatureType, typename ActivityType>
-void FeatMol<MolType,FeatureType,ActivityType>::unite_features(vector<Feature<FeatureType> *>* lr_features, sRegrMolVect * neighbors) {
+void FeatMol<MolType,FeatureType,ActivityType>::unite_features(vector<sFeatRef>* lr_features, sRegrMolVect * neighbors) {
 
 	typename sRegrMolVect::iterator cur_n;
 	FeatVect tmp_features;
@@ -949,7 +950,7 @@ void FeatMol<MolType,FeatureType,ActivityType>::print_features(string act) {
 }
 
 template <typename MolType, typename FeatureType, typename ActivityType>
-void FeatMol<MolType,FeatureType,ActivityType>::add_feature(Feature<FeatureType> * feat) {
+void FeatMol<MolType,FeatureType,ActivityType>::add_feature(sFeatRef feat) {
 	features.push_back(feat);
 }
 
@@ -1007,7 +1008,7 @@ float FeatMol<MolType,FeatureType,ActivityType>::get_similarity(sMolRef m2, stri
 	float u=0;
 	float p=0;
 
-	typedef vector<Feature<FeatureType> *> FeatVect;
+	typedef vector<sFeatRef> FeatVect;
 	FeatVect suni, sinter, uv, iv;
 
 	// compose union and intersect sets

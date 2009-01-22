@@ -37,6 +37,7 @@ class MolVect {
 
 		typedef FeatMol < MolType, FeatureType, ActivityType >* MolRef ;
 		typedef shared_ptr<FeatMol < MolType, FeatureType, ActivityType > > sMolRef ;
+	    typedef shared_ptr<Feature<FeatureType> > sFeatRef;
 
 	private:
 
@@ -265,8 +266,8 @@ void MolVect<MolType, FeatureType, ActivityType>::get_neighbors(string act, vect
 template <class MolType, class FeatureType, class ActivityType>
 void MolVect<MolType, FeatureType, ActivityType>::determine_unknown(string act, sMolRef test) {
 
-    vector<Feature<FeatureType> *> feats = test->get_features();
-    typename vector<Feature<FeatureType> *>::iterator cur_feat;
+    vector<sFeatRef> feats = test->get_features();
+    typename vector<sFeatRef>::iterator cur_feat;
     bool act_m;
     vector<int> matches;
     vector<int>::iterator cur_m;
