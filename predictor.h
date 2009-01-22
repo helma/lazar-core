@@ -56,7 +56,7 @@ class Predictor {
 
 
 		//! neighbors for the prediction of the current query structure
-		vector<MolRef> neighbors;
+		vector<sMolRef> neighbors;
 		//! input file with activities
 		char* a_file;
 		//! make leave-one-out crossvalidation?
@@ -421,7 +421,7 @@ template <class MolType, class FeatureType, class ActivityType>
 void Predictor<MolType, FeatureType, ActivityType>::print_neighbors(string act) {
 
 	int n;
-	typename vector<MolRef>::iterator cur_n;
+	typename vector<sMolRef>::iterator cur_n;
 
 	sort(neighbors.begin(),neighbors.end(),greater_sim<MolType,FeatureType,ActivityType>());
 

@@ -73,7 +73,7 @@ class MolVect {
 		vector<sMolRef> remove_duplicates(sMolRef test_comp);
 
 		//! Get Neighbors by using at least five compounds if any neighbors available
-		void get_neighbors(string act, vector<MolRef>* neighbors);
+		void get_neighbors(string act, vector<sMolRef>* neighbors);
 
 		vector<sMolRef> get_compounds() { return(compounds); };
 
@@ -223,7 +223,7 @@ void MolVect<MolType, FeatureType, ActivityType>::relevant_features(sMolRef test
 };
 
 template <class MolType, class FeatureType, class ActivityType>
-void MolVect<MolType, FeatureType, ActivityType>::get_neighbors(string act, vector<MolRef>* neighbors) {
+void MolVect<MolType, FeatureType, ActivityType>::get_neighbors(string act, vector<sMolRef>* neighbors) {
 
 	typename vector<sMolRef>::iterator cur_mol;
 	neighbors->clear();
@@ -244,7 +244,7 @@ void MolVect<MolType, FeatureType, ActivityType>::get_neighbors(string act, vect
     cur_sn--;
     while ((cur_sn != sim_sorted_neighbors.begin()) && (cur_sn->second->get_similarity()>0.3)) {
         if (cur_sn->second->is_available(act)) {
-            neighbors->push_back(cur_sn->second.get());
+            neighbors->push_back(cur_sn->second);
         }
         cur_sn--;
     }
@@ -256,7 +256,7 @@ void MolVect<MolType, FeatureType, ActivityType>::get_neighbors(string act, vect
     if ((cur_sn != sim_sorted_neighbors.begin()) && (neighbors->size() < min_n) && (neighbors->size() > 0)) {
         do {
             if (cur_sn->second->is_available(act)) {
-                neighbors->push_back(cur_sn->second.get());
+                neighbors->push_back(cur_sn->second);
             }
             cur_sn--;
         } while ((neighbors->size() < min_n) && (cur_sn != sim_sorted_neighbors.begin()));

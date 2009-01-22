@@ -20,13 +20,9 @@
 #define LAZMOL_H
 
 #include <math.h>
-#include "io.h"
-#include "stats.h"
 #include <sstream>
 #include <iostream>
 #include <iomanip>
-#include "openbabel/obconversion.h"
-#include "feature.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -40,7 +36,11 @@
 #include <list>
 #include <time.h>
 
+#include "openbabel/obconversion.h"
+#include "feature.h"
+#include "io.h"
 #include "rutils.h"
+#include "stats.h"
 
 using namespace std;
 using namespace OpenBabel;
@@ -103,8 +103,11 @@ class FeatMol: public MolType {
 	typedef FeatMol<MolType,FeatureType,ActivityType> * MolRef;
 	typedef shared_ptr<FeatMol<MolType,FeatureType,ActivityType> > sMolRef;
 	typedef vector<FeatMol < MolType, ClassFeat, bool > * > ClassMolVect;
+	typedef vector<shared_ptr<FeatMol < MolType, ClassFeat, bool > > > sClassMolVect;
 	typedef vector<FeatMol < MolType, RegrFeat, float > * > RegrMolVect;
+	typedef vector<shared_ptr<FeatMol < MolType, RegrFeat, float > > > sRegrMolVect;
 	typedef vector<FeatMol<MolType,FeatureType,ActivityType>*> MolVect;
+	typedef vector<shared_ptr<FeatMol < MolType, FeatureType, ActivityType > > > sMolVect; 
 
 	private:
 
@@ -134,7 +137,7 @@ class FeatMol: public MolType {
 		FeatMol(int i, string id, string smi): MolType(i, id, smi), similarity(0) {};
 		FeatMol(int i, string id, string smi, shared_ptr<Out> out): MolType(i, id, smi, out), similarity(0), out(out) {};
 
-		bool find_f_in_n(RegrFeat* f, FeatMol<MolType,RegrFeat,float>* n);
+		bool find_f_in_n(RegrFeat* f, shared_ptr<FeatMol<MolType,RegrFeat,float> > n);
 
 		void extend_matrix(gsl_matrix** X_p, gsl_vector* v);
 		void extend_vector(gsl_vector** x_p, float f);
@@ -147,27 +150,27 @@ class FeatMol: public MolType {
 
 		bool singular(gsl_vector* x); //!< Objective feature selection: singularity of feature
 
-		void build_fv(float* qp, gsl_vector* fv, RegrMolVect* n, RegrFeat* f);
+		void build_fv(float* qp, gsl_vector* fv, sRegrMolVect* n, RegrFeat* f);
 
-		bool build_descriptors_pca(FeatVect* lrf, RegrMolVect* n, unsigned int no_c, gsl_matrix** X_p, gsl_vector** x_p, string act, float* qdist, float* med_ndist, float* std_ndist, float* max_ndist); //!< Build data matrix X using objective feature selection and principal components analysis
+		bool build_descriptors_pca(FeatVect* lrf, sRegrMolVect* n, unsigned int no_c, gsl_matrix** X_p, gsl_vector** x_p, string act, float* qdist, float* med_ndist, float* std_ndist, float* max_ndist); //!< Build data matrix X using objective feature selection and principal components analysis
 
 		float gauss(float sim, float sigma);  //!< Compute gaussian smoothed similarity
 
 //		void calculate_prediction(ClassMolVect * neighbors, string act);  //!< Calculate prediction based on the set of neighbors
 
-		float calculate_confidence(MolVect* n, string act); //!< Calculate confidence using neighbor similarities and activities
+		float calculate_confidence(sMolVect* n, string act); //!< Calculate confidence using neighbor similarities and activities
 
-		void unite_features(vector<Feature<FeatureType> *>* lr_features, RegrMolVect * neighbors);
+		void unite_features(vector<Feature<FeatureType> *>* lr_features, sRegrMolVect * neighbors);
 
-		void extract_neighbors(RegrMolVect* np, multimap<float,MolRef>* sim_sorted_neighbors);
+		void extract_neighbors(sRegrMolVect* np, multimap<float,sMolRef>* sim_sorted_neighbors);
 
-		void set_y(FeatMol<MolType,RegrFeat,float>* cur_n, gsl_vector* y, string act, int rc); //!< Prepare regression: set neighbor activities and weights
+		void set_y(shared_ptr<FeatMol<MolType,RegrFeat,float> > cur_n, gsl_vector* y, string act, int rc); //!< Prepare regression: set neighbor activities and weights
 
-		void set_y_w(FeatMol<MolType,RegrFeat,float>* cur_n, gsl_vector* y, gsl_vector* w, string act, int rc); //!< Prepare regression: set neighbor activities and weights
+		void set_y_w(shared_ptr<FeatMol<MolType,RegrFeat,float> > cur_n, gsl_vector* y, gsl_vector* w, string act, int rc); //!< Prepare regression: set neighbor activities and weights
 
-		void calculate_gram_matrix(MolVect * neighbors, gsl_matrix* gram_matrix, string act);
+		void calculate_gram_matrix(sMolVect * neighbors, gsl_matrix* gram_matrix, string act);
 
-		void calculate_pred_matrix(MolVect * neighbors, gsl_matrix* pred_matrix, SEXP svR);
+		void calculate_pred_matrix(sMolVect * neighbors, gsl_matrix* pred_matrix, SEXP svR);
 
 //		void calculate_prediction(RegrMolVect * neighbors, string act); //!< Calculate prediction using the set of neighbors
 
@@ -253,10 +256,11 @@ class FeatMol: public MolType {
 };
 
 template <typename MolType, typename FeatureType, typename ActivityType>
-bool FeatMol<MolType,FeatureType,ActivityType>::find_f_in_n(RegrFeat* f, FeatMol<MolType,RegrFeat,float>* n) {
+bool FeatMol<MolType,FeatureType,ActivityType>::find_f_in_n(RegrFeat* f, shared_ptr<FeatMol<MolType,RegrFeat,float> > n=shared_ptr<FeatMol<MolType,RegrFeat,float> >()) {
 	FeatVect fv;
 	FeatVect* fvp = &fv;
-	(*fvp) = n->get_features();
+    if (n!=shared_ptr<FeatMol<MolType,RegrFeat,float> >()) (*fvp) = n->get_features();
+    else (*fvp) = this->get_features();
 	typename FeatVect::iterator fv_it;
 	for (fv_it = fvp->begin(); fv_it != fvp->end(); fv_it++) {
 		if ((*fv_it) == f) return true;
@@ -376,11 +380,11 @@ bool FeatMol<MolType,FeatureType,ActivityType>::singular(gsl_vector* x) {
 }
 
 template <typename MolType, typename FeatureType, typename ActivityType>
-void FeatMol<MolType,FeatureType,ActivityType>::build_fv(float* qp, gsl_vector* fv, RegrMolVect* n, RegrFeat* f) {
-	typename RegrMolVect::iterator n_it;
+void FeatMol<MolType,FeatureType,ActivityType>::build_fv(float* qp, gsl_vector* fv, sRegrMolVect* n, RegrFeat* f) {
+	typename sRegrMolVect::iterator n_it;
 	unsigned int i = 0;
 
-	(*qp) = 0.0; if (find_f_in_n(f,this)) (*qp) = 1.0;
+	(*qp) = 0.0; if (find_f_in_n(f)) (*qp) = 1.0;
 
 	for (n_it = n->begin(); n_it != n->end(); n_it++) {
 		if (find_f_in_n(f,(*n_it))) gsl_vector_set(fv, i, 1.0);
@@ -391,7 +395,7 @@ void FeatMol<MolType,FeatureType,ActivityType>::build_fv(float* qp, gsl_vector* 
 
 
 template <typename MolType, typename FeatureType, typename ActivityType>
-bool FeatMol<MolType,FeatureType,ActivityType>::build_descriptors_pca(FeatVect* lrf, RegrMolVect* n, unsigned int no_c, gsl_matrix** X_p, gsl_vector** x_p, string act, float* qdist, float* med_ndist, float* std_ndist, float* max_ndist) {
+bool FeatMol<MolType,FeatureType,ActivityType>::build_descriptors_pca(FeatVect* lrf, sRegrMolVect* n, unsigned int no_c, gsl_matrix** X_p, gsl_vector** x_p, string act, float* qdist, float* med_ndist, float* std_ndist, float* max_ndist) {
 
 	#define	FEATURE_POOL_SIZE 100000
 
@@ -588,14 +592,14 @@ float FeatMol<MolType,FeatureType,ActivityType>::gauss(float sim, float sigma = 
 
 
 template <typename MolType, typename FeatureType, typename ActivityType>
-float FeatMol<MolType,FeatureType,ActivityType>::calculate_confidence(MolVect* n, string act) {
+float FeatMol<MolType,FeatureType,ActivityType>::calculate_confidence(sMolVect* n, string act) {
 
 	vector<float> sims;
 	vector<float> acts;
 	vector<float> activity;
 	float confidence = 0.0;
 	float sim = 0.0;
-	typename RegrMolVect::iterator cur_n;
+	typename sRegrMolVect::iterator cur_n;
 
 	float ssum, smedian, smean, svar, sdev, sskew, skurt;
 	float asum, amedian, amean, avar, adev, askew, akurt;
@@ -629,9 +633,9 @@ float FeatMol<MolType,FeatureType,ActivityType>::calculate_confidence(MolVect* n
 }
 
 template <typename MolType, typename FeatureType, typename ActivityType>
-void FeatMol<MolType,FeatureType,ActivityType>::unite_features(vector<Feature<FeatureType> *>* lr_features, RegrMolVect * neighbors) {
+void FeatMol<MolType,FeatureType,ActivityType>::unite_features(vector<Feature<FeatureType> *>* lr_features, sRegrMolVect * neighbors) {
 
-	typename RegrMolVect::iterator cur_n;
+	typename sRegrMolVect::iterator cur_n;
 	FeatVect tmp_features;
 	FeatVect un_features;
 
@@ -650,9 +654,9 @@ void FeatMol<MolType,FeatureType,ActivityType>::unite_features(vector<Feature<Fe
 }
 
 template <typename MolType, typename FeatureType, typename ActivityType>
-void FeatMol<MolType,FeatureType,ActivityType>::extract_neighbors(RegrMolVect* np, multimap<float,MolRef>* sim_sorted_neighbors) {
+void FeatMol<MolType,FeatureType,ActivityType>::extract_neighbors(sRegrMolVect* np, multimap<float,sMolRef>* sim_sorted_neighbors) {
 
-	typename multimap<float,MolRef>::iterator cur_sn;
+	typename multimap<float,sMolRef>::iterator cur_sn;
 
 	np->clear();
 	cur_sn = sim_sorted_neighbors->end();
@@ -666,7 +670,7 @@ void FeatMol<MolType,FeatureType,ActivityType>::extract_neighbors(RegrMolVect* n
 
 
 template <typename MolType, typename FeatureType, typename ActivityType>
-void FeatMol<MolType,FeatureType,ActivityType>::set_y(FeatMol<MolType,RegrFeat,float>* cur_n, gsl_vector* y, string act, int rc) {
+void FeatMol<MolType,FeatureType,ActivityType>::set_y(shared_ptr<FeatMol<MolType,RegrFeat,float> > cur_n, gsl_vector* y, string act, int rc) {
 
 	vector<float> activity;
 	float asum, amedian, amean, avar, adev, askew, akurt;
@@ -680,7 +684,7 @@ void FeatMol<MolType,FeatureType,ActivityType>::set_y(FeatMol<MolType,RegrFeat,f
 }
 
 template <typename MolType, typename FeatureType, typename ActivityType>
-void FeatMol<MolType,FeatureType,ActivityType>::set_y_w(FeatMol<MolType,RegrFeat,float>* cur_n, gsl_vector* y, gsl_vector* w, string act, int rc) {
+void FeatMol<MolType,FeatureType,ActivityType>::set_y_w(shared_ptr<FeatMol<MolType,RegrFeat,float> > cur_n, gsl_vector* y, gsl_vector* w, string act, int rc) {
 
 	float sim = 0.0;
 	vector<float> activity;
@@ -700,8 +704,8 @@ void FeatMol<MolType,FeatureType,ActivityType>::set_y_w(FeatMol<MolType,RegrFeat
 
 
 template <typename MolType, typename FeatureType, typename ActivityType>
-void FeatMol<MolType,FeatureType,ActivityType>::calculate_gram_matrix(MolVect * neighbors, gsl_matrix* gram_matrix, string act) {
-	typename MolVect::iterator cur_n, cur_n2;
+void FeatMol<MolType,FeatureType,ActivityType>::calculate_gram_matrix(sMolVect * neighbors, gsl_matrix* gram_matrix, string act) {
+	typename sMolVect::iterator cur_n, cur_n2;
 
 	// calculate upper right
 	unsigned int n1=0;
@@ -735,8 +739,8 @@ void FeatMol<MolType,FeatureType,ActivityType>::calculate_gram_matrix(MolVect * 
 
 
 template <typename MolType, typename FeatureType, typename ActivityType>
-void FeatMol<MolType,FeatureType,ActivityType>::calculate_pred_matrix(MolVect * neighbors, gsl_matrix* pred_matrix, SEXP svR) {
-	typename MolVect::iterator cur_n;
+void FeatMol<MolType,FeatureType,ActivityType>::calculate_pred_matrix(sMolVect * neighbors, gsl_matrix* pred_matrix, SEXP svR) {
+	typename sMolVect::iterator cur_n;
 	unsigned int i=0;
 	unsigned int j=0;
 
@@ -1159,10 +1163,11 @@ template <typename MolType, typename FeatureType, typename ActivityType>
 class greater_sim {
 
 	typedef FeatMol<MolType,FeatureType,ActivityType> * MolRef;
+	typedef shared_ptr<FeatMol<MolType,FeatureType,ActivityType> > sMolRef;
 
 	public:
 
-        bool operator() (const MolRef m1,const MolRef m2) {
+        bool operator() (const sMolRef m1,const sMolRef m2) {
 			return (m1->get_similarity() > m2->get_similarity());
         }
 };
