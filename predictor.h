@@ -42,7 +42,6 @@ class Predictor {
 		typedef shared_ptr<FeatMol < MolType, FeatureType, ActivityType > > sMolRef ;
 		typedef Feature<OBLinFrag> * OBLinFragRef;
 		typedef Feature<FeatureType> * FeatRef;
-		typedef shared_ptr<Feature<FeatureType> > sFeatRef;
 
 	private:
 
@@ -344,7 +343,7 @@ void Predictor<MolType, FeatureType, ActivityType>::predict(sMolRef test, bool r
 
                 // MG
                 else {
-                    typename vector<sFeatRef>::iterator cur_feat;
+                    typename vector<FeatRef>::iterator cur_feat;
                     vector<ActivityType> tmp_activities;
 
                     tmp_activities = test->get_act(*cur_act);
@@ -355,7 +354,7 @@ void Predictor<MolType, FeatureType, ActivityType>::predict(sMolRef test, bool r
                     ClassFeat::set_cur_str_active( *tmp_activities.begin() );
 
                     // label features that occur in current test structure
-                    vector<sFeatRef> test_features = test->get_features();
+                    vector<FeatRef> test_features = test->get_features();
                     for (cur_feat=test_features.begin(); cur_feat!=test_features.end(); cur_feat++){
                         (*cur_feat)->set_cur_feat_occurs( true );
                     }
@@ -373,8 +372,8 @@ void Predictor<MolType, FeatureType, ActivityType>::predict(sMolRef test, bool r
 
 
 			// MG: remove label that feature occurs in current test structure
-			typename vector<sFeatRef>::iterator cur_feat;
-			vector<sFeatRef> test_features = test->get_features();
+			typename vector<FeatRef>::iterator cur_feat;
+			vector<FeatRef> test_features = test->get_features();
 			for (cur_feat=test_features.begin(); cur_feat!=test_features.end(); cur_feat++){
 				(*cur_feat)->set_cur_feat_occurs( false );
 			}

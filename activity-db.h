@@ -40,7 +40,6 @@ class ActMolVect: public FeatMolVect< MolType, FeatureType, ActivityType > {
 		typedef FeatMol < MolType, FeatureType, ActivityType > * MolRef ;
 		typedef shared_ptr<FeatMol < MolType, FeatureType, ActivityType > > sMolRef ;
 		typedef Feature<FeatureType> * FeatRef;
-		typedef shared_ptr<Feature<FeatureType> > sFeatRef;
 
 		//! ActMolVect constructor, called directly by Predictor(). Reads in activity values after (implicitly) calling super class constructor FeatMolVect()
 		ActMolVect< MolType, FeatureType, ActivityType >(char * act_file,char * feat_file, char  * structure_file, shared_ptr<Out> out);
@@ -220,9 +219,9 @@ void ActMolVect<MolType, FeatureType, ActivityType>::print_sig_features(float li
 
 	vector<ActivityType> activity_values;
 	vector<string>::iterator cur_act;
-	typename vector<sFeatRef>::iterator cur_feat;
-	vector<sFeatRef> printed_features;
-	vector<sFeatRef> * features = this->get_features();;
+	typename vector<Feature<FeatureType> * >::iterator cur_feat;
+	vector<FeatRef> printed_features;
+	vector<FeatRef> * features = this->get_features();;
 
 	for (cur_act = activity_names.begin(); cur_act != activity_names.end(); cur_act++) {
 
@@ -247,9 +246,9 @@ void  ActMolVect<MolType, FeatureType, ActivityType>::print_sorted_features(floa
 
     vector<ActivityType> activity_values;
     vector<string>::iterator cur_act;
-    typename vector<sFeatRef>::iterator cur_feat;
-    vector<sFeatRef> printed_features;
-    vector<sFeatRef> * features = this->get_features();
+    typename vector<Feature<FeatureType> * >::iterator cur_feat;
+    vector<FeatRef> printed_features;
+    vector<FeatRef> * features = this->get_features();
 
     for (cur_act = activity_names.begin(); cur_act != activity_names.end(); cur_act++) {
 
@@ -271,8 +270,8 @@ void ActMolVect<MolType, FeatureType, ActivityType>::precompute_feature_signific
 	int n_a =0;
 	int n_i =0;
 	vector<bool>::iterator cur_act_val;
-	typename vector<sFeatRef>::iterator cur_feat;
-	vector<sFeatRef>* features = this->get_features();
+	typename vector<FeatRef>::iterator cur_feat;
+	vector<FeatRef> * features = this->get_features();
 
 	// determine global nr of actives/inactives // AM: column sums
 	for (cur_act_val=activity_values.begin();cur_act_val!=activity_values.end();cur_act_val++) {
@@ -322,8 +321,8 @@ void ActMolVect<MolType, FeatureType, ActivityType>::feature_significance(string
 	int n_a =0;
 	int n_i =0;
 	vector<bool>::iterator cur_act_val;
-	typename vector<sFeatRef>::iterator cur_feat;
-	vector<sFeatRef> * features = this->get_features();
+	typename vector<FeatRef>::iterator cur_feat;
+	vector<FeatRef> * features = this->get_features();
 
 	// determine global nr of actives/inactives // AM: column sums
 	for (cur_act_val=activity_values.begin();cur_act_val!=activity_values.end();cur_act_val++) {
@@ -352,8 +351,8 @@ void ActMolVect<MolType, FeatureType, ActivityType>::feature_significance(string
 	//float global_median;
 	//vector<bool>::iterator cur_act_val;
 	vector<float> feat_activity_values;
-	typename vector<sFeatRef>::iterator cur_feat;
-	vector<sFeatRef> * features = this->get_features();
+	typename vector<FeatRef>::iterator cur_feat;
+	vector<FeatRef> * features = this->get_features();
 
 	// determine significance of training set features
 	for (cur_feat=features->begin(); cur_feat!=features->end(); cur_feat++) {

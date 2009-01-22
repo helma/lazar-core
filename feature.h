@@ -350,11 +350,11 @@ public:
 template <class FeatureType>
 class greater_p {
 
-typedef shared_ptr<Feature<FeatureType> > sFeatRef;
+typedef Feature<FeatureType> * FeatRef;
 
 public:
 
-    bool operator() (const sFeatRef f1,const sFeatRef f2) {
+    bool operator() (const FeatRef f1,const FeatRef f2) {
             return (f1->get_cur_p() > f2->get_cur_p());
     }
 };

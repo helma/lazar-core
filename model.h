@@ -53,7 +53,6 @@ class MetaModel {
 	typedef vector<FeatMol < MolType, RegrFeat, float > * > RegrMolVect; 
 	typedef vector<shared_ptr<FeatMol < MolType, RegrFeat, float > > > sRegrMolVect; 
 	typedef vector<FeatMol<MolType,FeatureType,ActivityType>*> MolVect; 
-    typedef shared_ptr<Feature<FeatureType> > sFeatRef;
 
 		public:
 				shared_ptr<Out> out;
@@ -76,7 +75,6 @@ class Model: public MetaModel<MolType,FeatureType,ActivityType> {
 	typedef vector<FeatMol < MolType, RegrFeat, float > * > RegrMolVect; 
 	typedef vector<shared_ptr<FeatMol < MolType, RegrFeat, float > > > sRegrMolVect; 
 	typedef vector<FeatMol<MolType,FeatureType,ActivityType>*> MolVect; 
-    typedef shared_ptr<Feature<FeatureType> > sFeatRef;
 
     private:
         vector<string> unknown_features;
@@ -98,7 +96,6 @@ class KernelModel: public MetaModel<MolType,FeatureType,ActivityType> {
 	typedef vector<FeatMol < MolType, RegrFeat, float > * > RegrMolVect; 
 	typedef vector<shared_ptr<FeatMol < MolType, RegrFeat, float > > > sRegrMolVect; 
 	typedef vector<FeatMol<MolType,FeatureType,ActivityType>*> MolVect; 
-    typedef shared_ptr<Feature<FeatureType> > sFeatRef;
 
     private:
         vector<string> unknown_features;
@@ -115,7 +112,7 @@ class KernelModel: public MetaModel<MolType,FeatureType,ActivityType> {
 // Implementations
 template <typename MolType, typename FeatureType, typename ActivityType>
 void Model<MolType,FeatureType,ActivityType>::calculate_prediction(shared_ptr<FeatMol<MolType,ClassFeat,bool> > test, sClassMolVect * neighbors, string act) {
-    vector<shared_ptr<Feature<ClassFeat> > > features = test->get_features();
+    vector<Feature<ClassFeat> *> features = test->get_features();
     this->unknown_features = test->get_unknown();
 
 	float prediction = 0;
@@ -171,8 +168,8 @@ void Model<MolType,FeatureType,ActivityType>::calculate_prediction(shared_ptr<Fe
 template <typename MolType, typename FeatureType, typename ActivityType>
 void Model<MolType,FeatureType,ActivityType>::calculate_prediction(shared_ptr<FeatMol<MolType,RegrFeat,float> > test, sRegrMolVect * neighbors, string act) {
 	// data storage
-    vector<shared_ptr<Feature<RegrFeat> > >lrf;							
-	vector<shared_ptr<Feature<RegrFeat> > >* lr_features = &lrf;				
+    vector<Feature<RegrFeat>*> lrf;							
+	vector<Feature<RegrFeat>*>* lr_features = &lrf;				
 	multimap<float, RegrFeat*> msf;					
 	multimap<float,shared_ptr<FeatMol<MolType,RegrFeat,float> > > ssn;
 	multimap<float,shared_ptr<FeatMol<MolType,RegrFeat,float> > >* sim_sorted_neighbors = &ssn;
@@ -326,7 +323,7 @@ void Model<MolType,FeatureType,ActivityType>::calculate_prediction(shared_ptr<Fe
 
 template <typename MolType, typename FeatureType, typename ActivityType>
 void KernelModel<MolType,FeatureType,ActivityType>::calculate_prediction(shared_ptr<FeatMol<MolType,ClassFeat,bool> > test, sClassMolVect * neighbors, string act) {
-    vector<shared_ptr<Feature<ClassFeat> > > features = test->get_features();
+    vector<Feature<ClassFeat> *> features = test->get_features();
     this->unknown_features = test->get_unknown();
  
 	float confidence = 0.0;
@@ -472,8 +469,8 @@ template <typename MolType, typename FeatureType, typename ActivityType>
 void KernelModel<MolType,FeatureType,ActivityType>::calculate_prediction(shared_ptr<FeatMol<MolType,RegrFeat,float> > test, sRegrMolVect * neighbors, string act) {
 
 	// data storage
-    vector<shared_ptr<Feature<RegrFeat> > > lrf;							
-	vector<shared_ptr<Feature<RegrFeat> > >* lr_features = &lrf;				
+    vector<Feature<RegrFeat>*> lrf;							
+	vector<Feature<RegrFeat>*>* lr_features = &lrf;				
 	multimap<float, RegrFeat*> msf;
 	multimap<float,shared_ptr<FeatMol<MolType,RegrFeat,float> > > ssn;
 	multimap<float,shared_ptr<FeatMol<MolType,RegrFeat,float> > >* sim_sorted_neighbors = &ssn;
