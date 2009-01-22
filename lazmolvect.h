@@ -45,11 +45,7 @@ class MolVect {
 
 	public:
 
-        ~MolVect() {
-//            for (unsigned int i=0; i<compounds.size(); i++) {
-//                delete compounds[i];
-//            }
-        }
+        ~MolVect() {};
 		MolVect() {};
 
 		//! MolVect constructor: reads SMILES from file (called by FeatMolVect())
@@ -81,7 +77,7 @@ class MolVect {
 
 		int get_size() { return(compounds.size()); };
 
-		MolRef get_molfromid(string id);
+		sMolRef get_molfromid(string id);
 		vector<string> get_idfromsmi(string smi);
 		vector<string> get_idfrominchi(string inchi);
 
@@ -324,7 +320,7 @@ vector<string>  MolVect<MolType, FeatureType, ActivityType>::get_idfrominchi(str
 };
 
 template <class MolType, class FeatureType, class ActivityType>
-FeatMol < MolType, FeatureType, ActivityType > *  MolVect<MolType, FeatureType, ActivityType>::get_molfromid(string id) {
+shared_ptr<FeatMol<MolType, FeatureType, ActivityType > > MolVect<MolType, FeatureType, ActivityType>::get_molfromid(string id) {
 
 	typename vector<sMolRef>::iterator cur_mol;
 
@@ -334,9 +330,9 @@ FeatMol < MolType, FeatureType, ActivityType > *  MolVect<MolType, FeatureType, 
 	}
 
 	if (cur_mol == compounds.end())
-		return(NULL);
+		return(sMolRef());
 	else
-		return((*cur_mol).get());
+		return(*cur_mol);
 
 };
 

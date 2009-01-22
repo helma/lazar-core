@@ -81,7 +81,7 @@ ActMolVect<MolType, FeatureType, ActivityType>::ActMolVect(char* act_file,char* 
 	string id;
 	string no_id;
 	string act_name;
-	MolRef mol_ptr = NULL;
+	sMolRef mol_ptr;
 	int line_nr = 0;
 
 	ifstream input;
@@ -113,7 +113,7 @@ ActMolVect<MolType, FeatureType, ActivityType>::ActMolVect(char* act_file,char* 
 					break;
 				else {
 					mol_ptr = this->get_molfromid(tmp_field);
-					if (mol_ptr == NULL) {	// ignore compounds without structures
+					if (mol_ptr == sMolRef()) {	// ignore compounds without structures
 						no_id = tmp_field;
 						*out << "No structure for ID " << tmp_field << ".\n";
 						out->print_err();
