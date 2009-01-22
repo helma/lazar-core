@@ -230,7 +230,7 @@ void MolVect<MolType, FeatureType, ActivityType>::get_neighbors(string act, vect
     for (cur_mol=compounds.begin();cur_mol!=compounds.end();cur_mol++) {
         if ((*cur_mol)->is_available(act)) {
             float sim = (*cur_mol)->get_similarity();
-            sim_sorted_neighbors.insert(pair<float, sMolRef>(sim,(*cur_mol)));
+            sim_sorted_neighbors.insert(sim_sorted_neighbors.end(),pair<float, sMolRef>(sim,(*cur_mol)));
         }
     }
     typename multimap<float,sMolRef>::iterator cur_sn;
