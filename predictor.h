@@ -217,18 +217,20 @@ void Predictor<MolType, FeatureType, ActivityType>::loo_predict() {
     clock_t t1 = clock();
     cerr << "Precomputing significance values... ";
 
-    // MG : precompute
-    vector<ActivityType> activity_values;
-    vector<string> activity_names = train_structures->get_activity_names();
-    typename vector<string>::iterator cur_act;
+    if (!quantitative) {
+        // MG : precompute
+        vector<ActivityType> activity_values;
+        vector<string> activity_names = train_structures->get_activity_names();
+        typename vector<string>::iterator cur_act;
 
-    for (cur_act = activity_names.begin(); cur_act != activity_names.end(); cur_act++) {
+        for (cur_act = activity_names.begin(); cur_act != activity_names.end(); cur_act++) {
 
-        activity_values = train_structures->get_activity_values(*cur_act);
-        train_structures->precompute_feature_significance(*cur_act, activity_values);
+            activity_values = train_structures->get_activity_values(*cur_act);
+            train_structures->precompute_feature_significance(*cur_act, activity_values);
 
+        }
+        // MG
     }
-    // MG
 
     clock_t t2 = clock();
     cerr << "done (" << (float)(t2-t1)/CLOCKS_PER_SEC << "sec)!" << endl;
@@ -329,7 +331,7 @@ void Predictor<MolType, FeatureType, ActivityType>::predict(sMolRef test, bool r
 
             if (recalculate) {
 
-                if (!loo) {
+                if (!loo || quantitative) {
                     activity_values = train_structures->get_activity_values(*cur_act);
                     train_structures->feature_significance(*cur_act, activity_values);	// AM: feature significance
                 }
@@ -364,13 +366,15 @@ void Predictor<MolType, FeatureType, ActivityType>::predict(sMolRef test, bool r
             out->print();
 
 
-            // MG: remove label that feature occurs in current test structure
-            typename vector<FeatRef>::iterator cur_feat;
-            vector<FeatRef> test_features = test->get_features();
-            for (cur_feat=test_features.begin(); cur_feat!=test_features.end(); cur_feat++){
-                (*cur_feat)->set_cur_feat_occurs( false );
+            if (loo && !quantitative) {
+                // MG: remove label that feature occurs in current test structure
+                typename vector<FeatRef>::iterator cur_feat;
+                vector<FeatRef> test_features = test->get_features();
+                for (cur_feat=test_features.begin(); cur_feat!=test_features.end(); cur_feat++){
+                    (*cur_feat)->set_cur_feat_occurs( false );
+                }
+                // MG
             }
-            // MG
         }
 
         else cerr << "Database activity not available." << endl;
