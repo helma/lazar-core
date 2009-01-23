@@ -20,6 +20,9 @@
 
 #include <getopt.h>
 #include <memory>
+#include <signal.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include "boost/smart_ptr.hpp"
 #include "predictor.h"
@@ -150,12 +153,9 @@ int main(int argc, char *argv[], char *envp[]) {
     shared_ptr<Out> out(new ConsoleOut());         // write to STDOUT/STDERR
 
     obErrorLog.StopLogging();
-
+   
     // initialize R
     cerr << "Initializing R environment...";
-
-    //string r_home = "R_HOME=/home/martin/software/R-2.8.0";
-    //putenv((char*) r_home.c_str());
 
     char *R_argv[] = { (char*)"REmbeddedPostgres", (char*)"--gui=none", (char*)"--silent", (char*)"--no-save"};
     int R_argc = sizeof(R_argv)/sizeof(R_argv[0]);
@@ -163,6 +163,12 @@ int main(int argc, char *argv[], char *envp[]) {
     init_R(R_argc, R_argv);
     R_exec("library", mkString("kernlab"));
     cerr << "done!" << endl;
+
+    // restore SIGINT handling (damaged by R)
+    struct sigaction sa;
+    memset (&sa, 0, sizeof (sa));
+    sa.sa_handler = SIG_DFL;
+    sigaction (SIGINT, &sa, NULL);
 
     // start predictions
     if (!daemon) {            // keep writing to STDOUT/STDERR
