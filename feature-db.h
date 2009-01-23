@@ -1,6 +1,6 @@
-/* Copyright (C) 2005  Christoph Helma <helma@in-silico.de> 
+/* Copyright (C) 2005  Christoph Helma <helma@in-silico.de>
 
-   
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -28,153 +28,155 @@ using namespace std;
 template <class MolType, class FeatureType, class ActivityType>
 class FeatMolVect: public MolVect<MolType,FeatureType,ActivityType> {
 
-	public:
+public:
 
-		typedef FeatMol < MolType, FeatureType, ActivityType > * MolRef ;
-		typedef shared_ptr<FeatMol < MolType, FeatureType, ActivityType > > sMolRef ;
-		typedef Feature<FeatureType> * FeatRef;
-		typedef shared_ptr<Feature<FeatureType> > sFeatRef;
+    typedef FeatMol < MolType, FeatureType, ActivityType > * MolRef ;
+    typedef shared_ptr<FeatMol < MolType, FeatureType, ActivityType > > sMolRef ;
+    typedef Feature<FeatureType> * FeatRef;
+    typedef shared_ptr<Feature<FeatureType> > sFeatRef;
 
-	private:
+private:
 
-		map<const string, sFeatRef> feature_map;		// lookup features by name
-		vector<sFeatRef> features;
-		shared_ptr<Out> out;
+    map<const string, sFeatRef> feature_map;		// lookup features by name
+    vector<sFeatRef> features;
+    shared_ptr<Out> out;
 
-	public:
+public:
 
-		FeatMolVect< MolType, FeatureType, ActivityType >(char * feat_file, char * structure_file, shared_ptr<Out> out); 
-        ~FeatMolVect() {
+    FeatMolVect< MolType, FeatureType, ActivityType >(char * feat_file, char * structure_file, shared_ptr<Out> out);
+    ~FeatMolVect() {
 //            for (unsigned int i=0; i<features.size(); i++) {
 //                delete features[i];
 //            }
-        }
+    }
 
-		//! read features from a file
-		void read_features(char * feat_file);
+    //! read features from a file
+    void read_features(char * feat_file);
 
-		void add_feature(sMolRef s, string name);
+    void add_feature(sMolRef s, string name);
 
-		void copy_level(vector<Feature<FeatureType> *> * level, MolRef test_comp);
+    void copy_level(vector<Feature<FeatureType> *> * level, MolRef test_comp);
 
-		vector<sFeatRef> * get_features() { return(&features); };
+    vector<sFeatRef> * get_features() {
+        return(&features);
+    };
 };
 
 // read a feature file
 template <class MolType, class FeatureType, class ActivityType>
 FeatMolVect<MolType, FeatureType, ActivityType>::FeatMolVect(char * feat_file, char * structure_file, shared_ptr<Out> out): MolVect< MolType, FeatureType, ActivityType >(structure_file,out), out(out) {
 
-	ifstream input;
-	input.open(feat_file);
+    ifstream input;
+    input.open(feat_file);
 
-	if (!input) {
-		*out << "Cannot open " << feat_file << endl;
-		out->print_err();
-		exit(1);
-	}
+    if (!input) {
+        *out << "Cannot open " << feat_file << endl;
+        out->print_err();
+        exit(1);
+    }
 
-	string line;
-	string tmp_field;
-	int line_nr =1;
-	sFeatRef feat_ptr;
+    string line;
+    string tmp_field;
+    int line_nr =1;
+    sFeatRef feat_ptr;
 
-	*out << "Reading features from " << feat_file << endl;
-	out->print_err();
-	while (getline(input, line)) {
-		
-		istringstream iss(line); 
-		int i =0;
+    *out << "Reading features from " << feat_file << endl;
+    out->print_err();
+    while (getline(input, line)) {
 
-		while(getline(iss, tmp_field, '\t') && i < 2) {	// split at tab and read exactly 2 fields
-			remove_dos_cr(&tmp_field);
+        istringstream iss(line);
+        int i =0;
 
-			if (i==0) {		// SMARTS
+        while (getline(iss, tmp_field, '\t') && i < 2) {	// split at tab and read exactly 2 fields
+            remove_dos_cr(&tmp_field);
 
-				feat_ptr.reset(new Feature<FeatureType>(tmp_field)); // initialize Feature with smarts 
-				feature_map[tmp_field] = feat_ptr;
-				features.push_back(feat_ptr);
+            if (i==0) {		// SMARTS
 
-			}
+                feat_ptr.reset(new Feature<FeatureType>(tmp_field)); // initialize Feature with smarts
+                feature_map[tmp_field] = feat_ptr;
+                features.push_back(feat_ptr);
 
-			else {			// MATCHES
+            }
 
-				size_t startpos = 0, endpos = 0;
-				vector<string> tokens;
+            else {			// MATCHES
 
-				for (;;) {
+                size_t startpos = 0, endpos = 0;
+                vector<string> tokens;
 
-					startpos = tmp_field.find_first_not_of(" \t\n",startpos);
-					endpos   = tmp_field.find_first_of(" \t\n",startpos);
+                for (;;) {
 
-					if (endpos < tmp_field.size() && startpos <= tmp_field.size())
-						tokens.push_back(tmp_field.substr(startpos,endpos-startpos));
-					else
-						break;
+                    startpos = tmp_field.find_first_not_of(" \t\n",startpos);
+                    endpos   = tmp_field.find_first_of(" \t\n",startpos);
 
-					startpos = endpos + 1;
+                    if (endpos < tmp_field.size() && startpos <= tmp_field.size())
+                        tokens.push_back(tmp_field.substr(startpos,endpos-startpos));
+                    else
+                        break;
 
-				}
+                    startpos = endpos + 1;
 
-				for (unsigned int i = 0 ; i < tokens.size() ; i++ ) {
+                }
 
-					if ( tokens[i] == "[" )
-						continue;
-					else if ( tokens[i] == "]" )
-						break;
-					  
-					int comp_nr = atoi(tokens[i].c_str());
-					feat_ptr->add_match(comp_nr);	// comp_nr is line number
-					this->get_compound(comp_nr)->add_feature(feat_ptr.get());
+                for (unsigned int i = 0 ; i < tokens.size() ; i++ ) {
 
-				}
+                    if ( tokens[i] == "[" )
+                        continue;
+                    else if ( tokens[i] == "]" )
+                        break;
 
-			}
+                    int comp_nr = atoi(tokens[i].c_str());
+                    feat_ptr->add_match(comp_nr);	// comp_nr is line number
+                    this->get_compound(comp_nr)->add_feature(feat_ptr.get());
 
-			i++;
+                }
 
-		}
+            }
 
-		line_nr++;
+            i++;
 
-	}
+        }
 
-	input.close();
+        line_nr++;
+
+    }
+
+    input.close();
 
 };
 
 template <class MolType, class FeatureType, class ActivityType>
 void FeatMolVect<MolType, FeatureType, ActivityType>::add_feature(sMolRef s, string name) {
 
-	typename map<const string, sFeatRef>::iterator pos;
-	pos = feature_map.find(name);
+    typename map<const string, sFeatRef>::iterator pos;
+    pos = feature_map.find(name);
 
-	if (pos != feature_map.end())
-		s->add_feature((pos->second).get());
+    if (pos != feature_map.end())
+        s->add_feature((pos->second).get());
 };
 
 template <class MolType, class FeatureType, class ActivityType>
 void FeatMolVect<MolType, FeatureType, ActivityType>::copy_level(vector<Feature<FeatureType> *> * level, MolRef test_comp) {
 
-	typename vector<Feature<FeatureType> *>::iterator frag;
-	typename map<const string, Feature<FeatureType> *>::iterator pos;
-	string name;
-	
-	for (frag = level->begin(); frag != level->end(); frag++) {
+    typename vector<Feature<FeatureType> *>::iterator frag;
+    typename map<const string, Feature<FeatureType> *>::iterator pos;
+    string name;
 
-		name = (*frag)->get_name();
+    for (frag = level->begin(); frag != level->end(); frag++) {
 
-		if ((*frag)->nr_matches() == 0) {
-			test_comp->add_unknown(name);
-			delete *frag; // free memory
-			*frag = NULL;
-			level->erase(frag);
-			frag--;	// set the iterator back to avoid skipping the next compound
-		}
+        name = (*frag)->get_name();
 
-		else 	// search in the feature_map
-			this->add_feature(test_comp,name);
+        if ((*frag)->nr_matches() == 0) {
+            test_comp->add_unknown(name);
+            delete *frag; // free memory
+            *frag = NULL;
+            level->erase(frag);
+            frag--;	// set the iterator back to avoid skipping the next compound
+        }
 
-	}
+        else 	// search in the feature_map
+            this->add_feature(test_comp,name);
+
+    }
 
 };
 

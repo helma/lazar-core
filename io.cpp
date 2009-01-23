@@ -1,6 +1,6 @@
-/* Copyright (C) 2005  Christoph Helma <helma@in-silico.de> 
+/* Copyright (C) 2005  Christoph Helma <helma@in-silico.de>
 
-   
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -20,22 +20,22 @@
 #include "io.h"
 
 void ConsoleOut::print() {
-	cout << this->str();
-	this->str("");
+    cout << this->str();
+    this->str("");
 };
 
 void ConsoleOut::print_err() {
-	cerr << this->str();
-	this->str("");
+    cerr << this->str();
+    this->str("");
 };
 
 void SocketOut::print() {
-	*socket << this->str();
-	this->str("");
+    *socket << this->str();
+    this->str("");
 };
 
 void SocketOut::print_err() {
-	cerr << this->str();
-	this->str("");
+    cerr << this->str();
+    this->str("");
 };
 

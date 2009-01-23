@@ -36,243 +36,243 @@ extern bool quantitative;
 template <class MolType, class FeatureType, class ActivityType>
 class Predictor {
 
-	public:
+public:
 
-		typedef FeatMol < MolType, FeatureType, ActivityType > * MolRef ;
-		typedef shared_ptr<FeatMol < MolType, FeatureType, ActivityType > > sMolRef ;
-		typedef Feature<OBLinFrag> * OBLinFragRef;
-		typedef Feature<FeatureType> * FeatRef;
+    typedef FeatMol < MolType, FeatureType, ActivityType > * MolRef ;
+    typedef shared_ptr<FeatMol < MolType, FeatureType, ActivityType > > sMolRef ;
+    typedef Feature<OBLinFrag> * OBLinFragRef;
+    typedef Feature<FeatureType> * FeatRef;
 
-	private:
+private:
 
-		//! feature generation for new structures
-		shared_ptr<FeatGen <MolType, FeatureType, ActivityType> > feat_gen;
-		//! training structures
-		shared_ptr<ActMolVect <MolType, FeatureType, ActivityType> > train_structures;
-		//! test structures for batch predictions
-		shared_ptr<MolVect <MolType, FeatureType, ActivityType> > test_structures;
-		//! model
-		shared_ptr<MetaModel<MolType, FeatureType, ActivityType> > model;
-
-
-		//! neighbors for the prediction of the current query structure
-		vector<sMolRef> neighbors;
-		//! input file with activities
-		char* a_file;
-		//! make leave-one-out crossvalidation?
-		bool loo;
-		//! output object
-		shared_ptr<Out> out;
-
-	public:
-
-		//! Predictor constructor for LOO
-		Predictor(char * structure_file, char * act_file, char * feat_file, shared_ptr<Out> out): a_file(NULL), loo(false), out(out) {
-			train_structures.reset( new ActMolVect <MolType, FeatureType, ActivityType>(act_file, feat_file, structure_file, out) );
-            if (kernel) model.reset( new KernelModel<MolType, FeatureType, ActivityType>(out) );
-            else model.reset( new Model<MolType, FeatureType, ActivityType>(out) );
-		};
-
-		//! Predictor constructor for single SMILES prediction
-		Predictor(char * structure_file, char * act_file, char * feat_file, char * alphabet_file, shared_ptr<Out> out): a_file(alphabet_file), loo(false), out(out){
-			train_structures.reset( new ActMolVect <MolType, FeatureType, ActivityType>(act_file, feat_file, structure_file, out) );
-            if (kernel) model.reset( new KernelModel<MolType, FeatureType, ActivityType>(out ));
-            else model.reset(new Model<MolType, FeatureType, ActivityType>(out));
-		}
-
-		//! Predictor constructor for batch prediction
-		Predictor(char * structure_file, char * act_file, char * feat_file, char * alphabet_file, char * input_file, shared_ptr<Out> out): a_file(alphabet_file), loo(false), out(out){
-			train_structures.reset( new ActMolVect <MolType, FeatureType, ActivityType>(act_file, feat_file, structure_file, out) );
-			test_structures.reset( new MolVect <MolType, FeatureType, ActivityType>(input_file, out) );
-            if (kernel) model.reset( new KernelModel<MolType, FeatureType, ActivityType>(out) );
-            else model.reset( new Model<MolType, FeatureType, ActivityType>(out) );
-		}
+    //! feature generation for new structures
+    shared_ptr<FeatGen <MolType, FeatureType, ActivityType> > feat_gen;
+    //! training structures
+    shared_ptr<ActMolVect <MolType, FeatureType, ActivityType> > train_structures;
+    //! test structures for batch predictions
+    shared_ptr<MolVect <MolType, FeatureType, ActivityType> > test_structures;
+    //! model
+    shared_ptr<MetaModel<MolType, FeatureType, ActivityType> > model;
 
 
-		//! predict a single smiles
-		void predict_smi(string smiles);
+    //! neighbors for the prediction of the current query structure
+    vector<sMolRef> neighbors;
+    //! input file with activities
+    char* a_file;
+    //! make leave-one-out crossvalidation?
+    bool loo;
+    //! output object
+    shared_ptr<Out> out;
 
-		//! batch predictions
-		void predict_ext();
-		void predict_file();
+public:
 
-		//! leave one out crossvalidation
-		void loo_predict();
+    //! Predictor constructor for LOO
+    Predictor(char * structure_file, char * act_file, char * feat_file, shared_ptr<Out> out): a_file(NULL), loo(false), out(out) {
+        train_structures.reset( new ActMolVect <MolType, FeatureType, ActivityType>(act_file, feat_file, structure_file, out) );
+        if (kernel) model.reset( new KernelModel<MolType, FeatureType, ActivityType>(out) );
+        else model.reset( new Model<MolType, FeatureType, ActivityType>(out) );
+    };
 
-		//! predict a test structure
-		void predict(sMolRef test_compound, bool recalculate, bool verbose);
+    //! Predictor constructor for single SMILES prediction
+    Predictor(char * structure_file, char * act_file, char * feat_file, char * alphabet_file, shared_ptr<Out> out): a_file(alphabet_file), loo(false), out(out){
+        train_structures.reset( new ActMolVect <MolType, FeatureType, ActivityType>(act_file, feat_file, structure_file, out) );
+        if (kernel) model.reset( new KernelModel<MolType, FeatureType, ActivityType>(out ));
+        else model.reset(new Model<MolType, FeatureType, ActivityType>(out));
+    }
 
-		//! predict the activity act for the query structure
-		void knn_predict(sMolRef test, string act, bool verbose);
+    //! Predictor constructor for batch prediction
+    Predictor(char * structure_file, char * act_file, char * feat_file, char * alphabet_file, char * input_file, shared_ptr<Out> out): a_file(alphabet_file), loo(false), out(out){
+        train_structures.reset( new ActMolVect <MolType, FeatureType, ActivityType>(act_file, feat_file, structure_file, out) );
+        test_structures.reset( new MolVect <MolType, FeatureType, ActivityType>(input_file, out) );
+        if (kernel) model.reset( new KernelModel<MolType, FeatureType, ActivityType>(out) );
+        else model.reset( new Model<MolType, FeatureType, ActivityType>(out) );
+    }
 
-		void print_neighbors(string act);
 
-		//! set the output object (e.g. switch between console and socket)
-		void set_output(shared_ptr<Out> newout);
+    //! predict a single smiles
+    void predict_smi(string smiles);
 
-		//! match features (SMARTS) from a file
-		void match_file_smarts(char * file);
+    //! batch predictions
+    void predict_ext();
+    void predict_file();
 
-		//! apply y-scrambling (aka response permutation testing, see Eriksson et al. 2003)
-		vector<map<string, vector<ActivityType> > > y_scrambling();
+    //! leave one out crossvalidation
+    void loo_predict();
+
+    //! predict a test structure
+    void predict(sMolRef test_compound, bool recalculate, bool verbose);
+
+    //! predict the activity act for the query structure
+    void knn_predict(sMolRef test, string act, bool verbose);
+
+    void print_neighbors(string act);
+
+    //! set the output object (e.g. switch between console and socket)
+    void set_output(shared_ptr<Out> newout);
+
+    //! match features (SMARTS) from a file
+    void match_file_smarts(char * file);
+
+    //! apply y-scrambling (aka response permutation testing, see Eriksson et al. 2003)
+    vector<map<string, vector<ActivityType> > > y_scrambling();
 
 };
 
 template <class MolType, class FeatureType, class ActivityType>
 void Predictor<MolType, FeatureType, ActivityType>::predict_ext() {
 
-		typename vector<sMolRef>::iterator cur_dup;
+    typename vector<sMolRef>::iterator cur_dup;
 
-		sMolRef cur_mol;
-		int test_size = test_structures->get_size();
+    sMolRef cur_mol;
+    int test_size = test_structures->get_size();
 
 
-		for (int n = 0; n < test_size; n++) {
-			cur_mol = test_structures->get_compound(n);
-			//delete feat_gen;
+    for (int n = 0; n < test_size; n++) {
+        cur_mol = test_structures->get_compound(n);
+        //delete feat_gen;
 
-			vector<sMolRef> duplicates = train_structures->remove_duplicates(cur_mol);
-			if (duplicates.size()) {
-				*out << int(duplicates.size()) << " instances of " << cur_mol->get_smiles() << " removed from the training set!\n";
-				out->print_err();
-			}
+        vector<sMolRef> duplicates = train_structures->remove_duplicates(cur_mol);
+        if (duplicates.size()) {
+            *out << int(duplicates.size()) << " instances of " << cur_mol->get_smiles() << " removed from the training set!\n";
+            out->print_err();
+        }
 
-		}
+    }
 
-		for (int n = 0; n < test_size; n++) {
-			cur_mol = test_structures->get_compound(n);
-			//delete feat_gen;
-			feat_gen.reset( new FeatGen <MolType, FeatureType, ActivityType>(a_file, train_structures, cur_mol,out) );
-			feat_gen->generate_linfrag(train_structures,cur_mol);
+    for (int n = 0; n < test_size; n++) {
+        cur_mol = test_structures->get_compound(n);
+        //delete feat_gen;
+        feat_gen.reset( new FeatGen <MolType, FeatureType, ActivityType>(a_file, train_structures, cur_mol,out) );
+        feat_gen->generate_linfrag(train_structures,cur_mol);
 
-			*out << "Predicting external test id " << cur_mol->get_id() << endl;
-			out->print_err();
+        *out << "Predicting external test id " << cur_mol->get_id() << endl;
+        out->print_err();
 
-			// recalculate frequencies and and significance only for the first time
-			if (n == 0)
-				this->predict(cur_mol, true);
-			else
-				this->predict(cur_mol, false);
+        // recalculate frequencies and and significance only for the first time
+        if (n == 0)
+            this->predict(cur_mol, true);
+        else
+            this->predict(cur_mol, false);
 
-		}
+    }
 
 };
 
 template <class MolType, class FeatureType, class ActivityType>
 void Predictor<MolType, FeatureType, ActivityType>::predict_file() {
 
-		bool recalculate = true;
-		typename vector<sMolRef>::iterator cur_dup;
+    bool recalculate = true;
+    typename vector<sMolRef>::iterator cur_dup;
 
-		sMolRef cur_mol;
-		int test_size = test_structures->get_size();
+    sMolRef cur_mol;
+    int test_size = test_structures->get_size();
 
-		for (int n = 0; n < test_size; n++) {
+    for (int n = 0; n < test_size; n++) {
 
-			cur_mol = test_structures->get_compound(n);
-			//delete feat_gen;
-			feat_gen.reset(new FeatGen <MolType, FeatureType, ActivityType>(a_file, train_structures, cur_mol,out));
-			feat_gen->generate_linfrag(train_structures,cur_mol);
+        cur_mol = test_structures->get_compound(n);
+        //delete feat_gen;
+        feat_gen.reset(new FeatGen <MolType, FeatureType, ActivityType>(a_file, train_structures, cur_mol,out));
+        feat_gen->generate_linfrag(train_structures,cur_mol);
 
-			//cur_mol->print();
+        //cur_mol->print();
 
-			// check if the compound is already in the database
+        // check if the compound is already in the database
 
-			*out << "Looking for " << cur_mol->get_smiles() << " in the training set\n";
-			out->print_err();
+        *out << "Looking for " << cur_mol->get_smiles() << " in the training set\n";
+        out->print_err();
 
-			vector<sMolRef> duplicates = train_structures->remove_duplicates(cur_mol);
+        vector<sMolRef> duplicates = train_structures->remove_duplicates(cur_mol);
 
-			if (duplicates.size() > 1) {
-				*out << int(duplicates.size()) << " instances of " << cur_mol->get_smiles() << " in the training set!\n";
-				out->print_err();
-			}
+        if (duplicates.size() > 1) {
+            *out << int(duplicates.size()) << " instances of " << cur_mol->get_smiles() << " in the training set!\n";
+            out->print_err();
+        }
 
-			// recalculate frequencies and and significance only if necessary
+        // recalculate frequencies and and significance only if necessary
 
-			if (n == 0)
-				this->predict(cur_mol, true, true);
-			else if (duplicates.size() > 0) {
-				this->predict(cur_mol, true, true);
-				recalculate = true;
-			}
-			else if (recalculate) {
-				this->predict(cur_mol, true, true);
-				recalculate = false;
-			}
-			else
-				this->predict(cur_mol, false, true);
+        if (n == 0)
+            this->predict(cur_mol, true, true);
+        else if (duplicates.size() > 0) {
+            this->predict(cur_mol, true, true);
+            recalculate = true;
+        }
+        else if (recalculate) {
+            this->predict(cur_mol, true, true);
+            recalculate = false;
+        }
+        else
+            this->predict(cur_mol, false, true);
 
-			// restore duplicates for batch predictions
+        // restore duplicates for batch predictions
 
-			if (duplicates.size() >= 1) {
-				for (cur_dup=duplicates.begin(); cur_dup != duplicates.end(); cur_dup++) {
-					(*cur_dup)->restore();
-				}
-			}
-		}
+        if (duplicates.size() >= 1) {
+            for (cur_dup=duplicates.begin(); cur_dup != duplicates.end(); cur_dup++) {
+                (*cur_dup)->restore();
+            }
+        }
+    }
 
 };
 
 template <class MolType, class FeatureType, class ActivityType>
 void Predictor<MolType, FeatureType, ActivityType>::loo_predict() {
 
-	loo = true;
-	sMolRef cur_mol;
-	typename vector<sMolRef>::iterator cur_dup;
+    loo = true;
+    sMolRef cur_mol;
+    typename vector<sMolRef>::iterator cur_dup;
 
-   
-	clock_t t1 = clock();
-	cerr << "Precomputing significance values... ";
 
-	// MG : precompute
-	vector<ActivityType> activity_values;
-	vector<string> activity_names = train_structures->get_activity_names();
-	typename vector<string>::iterator cur_act;
+    clock_t t1 = clock();
+    cerr << "Precomputing significance values... ";
 
-	for (cur_act = activity_names.begin(); cur_act != activity_names.end(); cur_act++) {
+    // MG : precompute
+    vector<ActivityType> activity_values;
+    vector<string> activity_names = train_structures->get_activity_names();
+    typename vector<string>::iterator cur_act;
 
-		activity_values = train_structures->get_activity_values(*cur_act);
-		train_structures->precompute_feature_significance(*cur_act, activity_values);
+    for (cur_act = activity_names.begin(); cur_act != activity_names.end(); cur_act++) {
 
-	}
-	// MG
+        activity_values = train_structures->get_activity_values(*cur_act);
+        train_structures->precompute_feature_significance(*cur_act, activity_values);
 
-	clock_t t2 = clock();
-	cerr << "done (" << (float)(t2-t1)/CLOCKS_PER_SEC << "sec)!" << endl;
+    }
+    // MG
 
-	for (int n = 0; n < train_structures->get_size(); n++) {
+    clock_t t2 = clock();
+    cerr << "done (" << (float)(t2-t1)/CLOCKS_PER_SEC << "sec)!" << endl;
 
-		t1 = clock();
+    for (int n = 0; n < train_structures->get_size(); n++) {
 
-		cur_mol = train_structures->get_compound(n);
+        t1 = clock();
 
-		// make query compound unavailable as train structure in this round
-		*out << "Looking for " << cur_mol->get_smiles() << " in the training set\n";
-		out->print_err();
-		vector<sMolRef> duplicates = train_structures->remove_duplicates(cur_mol);
-		if (duplicates.size() > 1) {
-			*out << duplicates.size() << " instances of " << cur_mol->get_smiles() << " in the training set!\n";
-			out->print_err();
-		}
-		// predict by recalculating significance values
-		this->predict(cur_mol,true,false);
+        cur_mol = train_structures->get_compound(n);
+
+        // make query compound unavailable as train structure in this round
+        *out << "Looking for " << cur_mol->get_smiles() << " in the training set\n";
+        out->print_err();
+        vector<sMolRef> duplicates = train_structures->remove_duplicates(cur_mol);
+        if (duplicates.size() > 1) {
+            *out << duplicates.size() << " instances of " << cur_mol->get_smiles() << " in the training set!\n";
+            out->print_err();
+        }
+        // predict by recalculating significance values
+        this->predict(cur_mol,true,false);
 
         // recover query compound as train structure for the next round
-		if (duplicates.size() >= 1) {
-			for (cur_dup=duplicates.begin(); cur_dup != duplicates.end(); cur_dup++) {
-				(*cur_dup)->restore();
-			}
-		}
+        if (duplicates.size() >= 1) {
+            for (cur_dup=duplicates.begin(); cur_dup != duplicates.end(); cur_dup++) {
+                (*cur_dup)->restore();
+            }
+        }
 
-		t2 = clock();
-		static float avg_s = 0;
-		float s = (float)(t2-t1)/CLOCKS_PER_SEC;
-		avg_s = (avg_s * n + s) / float(n+1);
+        t2 = clock();
+        static float avg_s = 0;
+        float s = (float)(t2-t1)/CLOCKS_PER_SEC;
+        avg_s = (avg_s * n + s) / float(n+1);
 
-		cerr << "Prediction " << n+1 << "/" << train_structures->get_size() << " of structure " <<cur_mol->get_id() <<
-		  " took " << s << " sec (avg is " << avg_s << " sec)" << endl;
-	}
+        cerr << "Prediction " << n+1 << "/" << train_structures->get_size() << " of structure " <<cur_mol->get_id() <<
+        " took " << s << " sec (avg is " << avg_s << " sec)" << endl;
+    }
 
 
 };
@@ -280,65 +280,65 @@ void Predictor<MolType, FeatureType, ActivityType>::loo_predict() {
 template <class MolType, class FeatureType, class ActivityType>
 void Predictor<MolType, FeatureType, ActivityType>::predict_smi(string smiles) {
 
-		bool recalculate = true;
-		vector<sMolRef> duplicates ;
-		typename vector<sMolRef>::iterator cur_dup;
+    bool recalculate = true;
+    vector<sMolRef> duplicates ;
+    typename vector<sMolRef>::iterator cur_dup;
 
-        shared_ptr<FeatMol <MolType, FeatureType, ActivityType> > cur_mol ( new FeatMol<MolType, FeatureType, ActivityType>(0,"test structure",smiles,out) );
+    shared_ptr<FeatMol <MolType, FeatureType, ActivityType> > cur_mol ( new FeatMol<MolType, FeatureType, ActivityType>(0,"test structure",smiles,out) );
 
-		*out << "Looking for " << cur_mol->get_smiles() << " in the training set\n";
-		out->print_err();
-		duplicates = train_structures->remove_duplicates(cur_mol);
+    *out << "Looking for " << cur_mol->get_smiles() << " in the training set\n";
+    out->print_err();
+    duplicates = train_structures->remove_duplicates(cur_mol);
 
-		//delete feat_gen;
-        feat_gen.reset( new FeatGen <MolType, FeatureType, ActivityType>(a_file, train_structures, cur_mol,out)) ;
-		feat_gen->generate_linfrag(train_structures,cur_mol);
+    //delete feat_gen;
+    feat_gen.reset( new FeatGen <MolType, FeatureType, ActivityType>(a_file, train_structures, cur_mol,out)) ;
+    feat_gen->generate_linfrag(train_structures,cur_mol);
 
-		if (duplicates.size() > 1) {
-			*out << int(duplicates.size()) << " instances of " << cur_mol->get_smiles() << " in the training set!\n";
-			out->print_err();
-		}
-		else if (duplicates.size() > 0) {
-			this->predict(cur_mol, true, true);
-		}
-		else if (recalculate) {
-			this->predict(cur_mol, true, true);
-		}
-		else
-			this->predict(cur_mol, false, true);
+    if (duplicates.size() > 1) {
+        *out << int(duplicates.size()) << " instances of " << cur_mol->get_smiles() << " in the training set!\n";
+        out->print_err();
+    }
+    else if (duplicates.size() > 0) {
+        this->predict(cur_mol, true, true);
+    }
+    else if (recalculate) {
+        this->predict(cur_mol, true, true);
+    }
+    else
+        this->predict(cur_mol, false, true);
 
-		// restore duplicates for batch predictions
+    // restore duplicates for batch predictions
 
-		if (duplicates.size() >= 1) {
-			for (cur_dup=duplicates.begin(); cur_dup != duplicates.end(); cur_dup++) {
-				(*cur_dup)->restore();
-			}
-		}
+    if (duplicates.size() >= 1) {
+        for (cur_dup=duplicates.begin(); cur_dup != duplicates.end(); cur_dup++) {
+            (*cur_dup)->restore();
+        }
+    }
 
 };
 
 template <class MolType, class FeatureType, class ActivityType>
 void Predictor<MolType, FeatureType, ActivityType>::predict(sMolRef test, bool recalculate, bool verbose=true) {
 
-	vector<ActivityType> activity_values;
-	vector<string> activity_names = train_structures->get_activity_names();
-	typename vector<string>::iterator cur_act;
+    vector<ActivityType> activity_values;
+    vector<string> activity_names = train_structures->get_activity_names();
+    typename vector<string>::iterator cur_act;
 
-	// determine common features in the training set
-	train_structures->common_features(test);
+    // determine common features in the training set
+    train_structures->common_features(test);
 
-	for (cur_act = activity_names.begin(); cur_act != activity_names.end(); cur_act++) {
+    for (cur_act = activity_names.begin(); cur_act != activity_names.end(); cur_act++) {
 
 
-		if (!loo || test->db_act_available(*cur_act)) {	// make loo predictions only for activities with measured values
+        if (!loo || test->db_act_available(*cur_act)) {	// make loo predictions only for activities with measured values
 
-			*out << "---\n";
+            *out << "---\n";
 
-			if (recalculate) {
+            if (recalculate) {
 
                 if (!loo) {
-    				activity_values = train_structures->get_activity_values(*cur_act);
-	    			train_structures->feature_significance(*cur_act, activity_values);	// AM: feature significance
+                    activity_values = train_structures->get_activity_values(*cur_act);
+                    train_structures->feature_significance(*cur_act, activity_values);	// AM: feature significance
                 }
 
                 // MG
@@ -358,30 +358,30 @@ void Predictor<MolType, FeatureType, ActivityType>::predict(sMolRef test, bool r
                     for (cur_feat=test_features.begin(); cur_feat!=test_features.end(); cur_feat++){
                         (*cur_feat)->set_cur_feat_occurs( true );
                     }
-				}
-			}
-			else {
-				*out << "Significances for " << *cur_act << " not recalculated.\n";
-				out->print_err();
-			}
+                }
+            }
+            else {
+                *out << "Significances for " << *cur_act << " not recalculated.\n";
+                out->print_err();
+            }
 
-			train_structures->relevant_features(test, *cur_act);
-			this->knn_predict(test,*cur_act);
+            train_structures->relevant_features(test, *cur_act);
+            this->knn_predict(test,*cur_act);
             *out << "\n";
-			out->print();
+            out->print();
 
 
-			// MG: remove label that feature occurs in current test structure
-			typename vector<FeatRef>::iterator cur_feat;
-			vector<FeatRef> test_features = test->get_features();
-			for (cur_feat=test_features.begin(); cur_feat!=test_features.end(); cur_feat++){
-				(*cur_feat)->set_cur_feat_occurs( false );
-			}
-			// MG
-		}
+            // MG: remove label that feature occurs in current test structure
+            typename vector<FeatRef>::iterator cur_feat;
+            vector<FeatRef> test_features = test->get_features();
+            for (cur_feat=test_features.begin(); cur_feat!=test_features.end(); cur_feat++){
+                (*cur_feat)->set_cur_feat_occurs( false );
+            }
+            // MG
+        }
 
-		else cerr << "test db act not avail" << endl;
-	}
+        else cerr << "test db act not avail" << endl;
+    }
 
 };
 
@@ -389,18 +389,18 @@ void Predictor<MolType, FeatureType, ActivityType>::predict(sMolRef test, bool r
 template <class MolType, class FeatureType, class ActivityType>
 void Predictor<MolType, FeatureType, ActivityType>::knn_predict(sMolRef test, string act, bool verbose=true)  {
 
-	// determine neighbors
-	train_structures->get_neighbors(act, &neighbors);
+    // determine neighbors
+    train_structures->get_neighbors(act, &neighbors);
 
-	// determine and print
-	train_structures->determine_unknown(act, test);
+    // determine and print
+    train_structures->determine_unknown(act, test);
 
-	// calculate and print predicition
+    // calculate and print predicition
     test->print();
     test->print_db_activity(act,loo);
-	model->calculate_prediction(test, &neighbors, act);
-	*out << "endpoint: '" << act << "'\n";
-	out->print();
+    model->calculate_prediction(test, &neighbors, act);
+    *out << "endpoint: '" << act << "'\n";
+    out->print();
 
     // print neighbors
     if (verbose) {
@@ -408,11 +408,11 @@ void Predictor<MolType, FeatureType, ActivityType>::knn_predict(sMolRef test, st
         this->print_neighbors(act);
         *out << "features:\n";
         test->print_features(act);
-	    out->print();
+        out->print();
     }
-	*out << "unknown_features:\n";
-	test->print_unknown(act);
-	out->print();
+    *out << "unknown_features:\n";
+    test->print_unknown(act);
+    out->print();
     test->delete_unknown();
 
 };
@@ -420,32 +420,32 @@ void Predictor<MolType, FeatureType, ActivityType>::knn_predict(sMolRef test, st
 template <class MolType, class FeatureType, class ActivityType>
 void Predictor<MolType, FeatureType, ActivityType>::print_neighbors(string act) {
 
-	int n;
-	typename vector<sMolRef>::iterator cur_n;
+    int n;
+    typename vector<sMolRef>::iterator cur_n;
 
-	sort(neighbors.begin(),neighbors.end(),greater_sim<MolType,FeatureType,ActivityType>());
+    sort(neighbors.begin(),neighbors.end(),greater_sim<MolType,FeatureType,ActivityType>());
 
-	if (neighbors.size()>0) {
+    if (neighbors.size()>0) {
 
-		n = 0;
-		for (cur_n = neighbors.begin(); (cur_n != neighbors.end()); cur_n++) {
-			(*cur_n)->print_neighbor(act);
-			n++;
-		}
-	}
+        n = 0;
+        for (cur_n = neighbors.begin(); (cur_n != neighbors.end()); cur_n++) {
+            (*cur_n)->print_neighbor(act);
+            n++;
+        }
+    }
 
 };
 
 template <class MolType, class FeatureType, class ActivityType>
 void Predictor<MolType, FeatureType, ActivityType>::set_output(shared_ptr<Out> newout) {
 
-	out = newout ;
-	int train_size = train_structures->get_size();
-	model->set_output(out);
+    out = newout ;
+    int train_size = train_structures->get_size();
+    model->set_output(out);
 
-	for (int n = 0; n < train_size; n++) {
-		train_structures->get_compound(n)->set_output(out);
-	}
+    for (int n = 0; n < train_size; n++) {
+        train_structures->get_compound(n)->set_output(out);
+    }
 
 };
 

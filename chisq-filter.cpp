@@ -1,6 +1,6 @@
-/* Copyright (C) 2005  Christoph Helma <helma@in-silico.de> 
+/* Copyright (C) 2005  Christoph Helma <helma@in-silico.de>
 
-   
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -18,8 +18,9 @@
 */
 
 
-#include "activity-db.h"
 #include <getopt.h>
+
+#include "activity-db.h"
 
 using namespace std;
 
@@ -30,67 +31,67 @@ bool quantitative = 0;
 //! option -n can be used to print chisq, fa, fi
 int main(int argc, char *argv[]) {
 
-	int status = 0;
-	int c;
-	bool s_file=false;
-	bool t_file=false;
-	bool f_file=false;
-	bool print_all = false;
-	char * train_file = NULL;
-	char * smi_file = NULL;
-	char * feature_file = NULL;
-	char * smarts = NULL;
-	float limit = sig_thr;
+    int status = 0;
+    int c;
+    bool s_file=false;
+    bool t_file=false;
+    bool f_file=false;
+    bool print_all = false;
+    char * train_file = NULL;
+    char * smi_file = NULL;
+    char * feature_file = NULL;
+    char * smarts = NULL;
+    float limit = sig_thr;
 
-	while ((c = getopt(argc, argv, "s:t:f:l:m:n")) != -1) {
-		switch(c) {
-		case 's':
-		 	smi_file = optarg; 
-			s_file = true;
-		    break;
-		case 't':
-		 	train_file = optarg; 
-			t_file = true;
-		    break;
-		case 'f':
-		 	feature_file = optarg; 
-			f_file = true;
-		    break;
-		case 'l':
-		 	limit = atof(optarg); 
-		    break;
-		case 'm':
-			smarts = optarg;
-		    break;
-		case 'n':
-			print_all = true;
-		    break;
-		case ':':
-			status = 1;
-		    break;
-		 case '?':
-			status = 1;
-		    break;
-		 default:
-			status = 1;
-		    break;
-		}
-	}
+    while ((c = getopt(argc, argv, "s:t:f:l:m:n")) != -1) {
+        switch (c) {
+        case 's':
+            smi_file = optarg;
+            s_file = true;
+            break;
+        case 't':
+            train_file = optarg;
+            t_file = true;
+            break;
+        case 'f':
+            feature_file = optarg;
+            f_file = true;
+            break;
+        case 'l':
+            limit = atof(optarg);
+            break;
+        case 'm':
+            smarts = optarg;
+            break;
+        case 'n':
+            print_all = true;
+            break;
+        case ':':
+            status = 1;
+            break;
+        case '?':
+            status = 1;
+            break;
+        default:
+            status = 1;
+            break;
+        }
+    }
 
-	ConsoleOut * out;
-	out = new ConsoleOut();
+    ConsoleOut * out;
+    out = new ConsoleOut();
 
-	if (status | !s_file | !t_file | !f_file) {
-		fprintf(stderr, "usage: %s -s structures -t training_set -f feature_set [-l min_chisq] [-m smarts] [-n]\n",argv[0]);
-		return(status);
-	}
-	
-	shared_ptr <ActMolVect<OBLazMol,ClassFeat,bool> > train_set ( new ActMolVect<OBLazMol,ClassFeat,bool>(train_file,feature_file,smi_file,out) );
+    if (status | !s_file | !t_file | !f_file) {
+        fprintf(stderr, "usage: %s -s structures -t training_set -f feature_set [-l min_chisq] [-m smarts] [-n]\n",argv[0]);
+        return(status);
+    }
 
-	if (print_all)
-		train_set->print_sorted_features(limit,smarts);
-	else
-		train_set->print_sig_features(limit,smarts);
+    shared_ptr <ActMolVect<OBLazMol,ClassFeat,bool> > train_set ( new ActMolVect<OBLazMol,ClassFeat,bool>(train_file,feature_file,smi_file,out) );
 
-	return (0);
+    if (print_all)
+        train_set->print_sorted_features(limit,smarts);
+    else
+        train_set->print_sig_features(limit,smarts);
+
+    return (0);
 }

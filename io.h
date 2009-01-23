@@ -1,4 +1,4 @@
-/* Copyright (C) 2005  Christoph Helma <helma@in-silico.de> 
+/* Copyright (C) 2005  Christoph Helma <helma@in-silico.de>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 #ifndef IO_H
 #define IO_H
 
-#include <string>	
+#include <string>
 #include <iostream>
 #include <sstream>
 
@@ -30,27 +30,27 @@ using namespace std;
 using namespace boost;
 
 class Out: public stringstream {
-	public:
-		Out() {};
-		virtual void print() {};
-		virtual void print_err() {};
+public:
+    Out() {};
+    virtual void print() {};
+    virtual void print_err() {};
 };
 
 class ConsoleOut: public Out {
-	public:
-		ConsoleOut() {};
-		void print();
-		void print_err();
+public:
+    ConsoleOut() {};
+    void print();
+    void print_err();
 };
 
 class SocketOut: public Out {
 
-	private:
-		shared_ptr<ServerSocket> socket;
-		
-	public:
-		SocketOut(ServerSocket * socket): socket(socket) {} ;
-		void print();
-		void print_err();
+private:
+    shared_ptr<ServerSocket> socket;
+
+public:
+    SocketOut(ServerSocket * socket): socket(socket) {} ;
+    void print();
+    void print_err();
 };
 #endif

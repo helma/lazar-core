@@ -1,6 +1,6 @@
-/* Copyright (C) 2005  Christoph Helma <helma@in-silico.de> 
+/* Copyright (C) 2005  Christoph Helma <helma@in-silico.de>
 
-   
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -17,9 +17,9 @@
 
 */
 
+#include <getopt.h>
 
 #include "feature-generation.h"
-#include <getopt.h>
 
 using namespace std;
 
@@ -29,45 +29,45 @@ float sig_thr=0.9;
 //  id \t molwgt \t logP \t psa \t mr
 int main(int argc, char *argv[]) {
 
-	int status = 0;
-	int c;
-	bool t_file = false;
-	char * structure_file = NULL;
+    int status = 0;
+    int c;
+    bool t_file = false;
+    char * structure_file = NULL;
 
-	typedef MolVect<OBLazMol,OBLinFrag,bool> OBLazMolVect ;
+    typedef MolVect<OBLazMol,OBLinFrag,bool> OBLazMolVect ;
 
-	while ((c = getopt(argc, argv, "s:")) != -1) {
-		switch(c) {
-		case 's':
-		 	structure_file = optarg; 
-			t_file = true;
-		    break;
-		case ':':
-			status = 1;
-		    break;
-		 case '?':
-			status = 1;
-		    break;
-		}
-	}
+    while ((c = getopt(argc, argv, "s:")) != -1) {
+        switch (c) {
+        case 's':
+            structure_file = optarg;
+            t_file = true;
+            break;
+        case ':':
+            status = 1;
+            break;
+        case '?':
+            status = 1;
+            break;
+        }
+    }
 
-	ConsoleOut * out;
-	out = new ConsoleOut();
+    ConsoleOut * out;
+    out = new ConsoleOut();
 
-	if (status | !t_file) {
-		*out << "usage: " << argv[0] << " -s id_and_smiles\n";
-		out->print_err();
-		return(status);
-	}
+    if (status | !t_file) {
+        *out << "usage: " << argv[0] << " -s id_and_smiles\n";
+        out->print_err();
+        return(status);
+    }
 
-	OBLazMolVect * structures = new OBLazMolVect(structure_file, out);
+    OBLazMolVect * structures = new OBLazMolVect(structure_file, out);
 
-	FeatGen<OBLazMol,OBLinFrag,bool> * fragments = new FeatGen<OBLazMol,OBLinFrag,bool>(structures, out);
+    FeatGen<OBLazMol,OBLinFrag,bool> * fragments = new FeatGen<OBLazMol,OBLinFrag,bool>(structures, out);
 
-	fragments->generate_pcprop(out);
+    fragments->generate_pcprop(out);
 
-	delete fragments;
-	delete structures;
-	return (0);
+    delete fragments;
+    delete structures;
+    return (0);
 
 }

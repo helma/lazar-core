@@ -33,53 +33,59 @@ extern void remove_dos_cr(string* str);
 template <class MolType, class FeatureType, class ActivityType>
 class MolVect {
 
-	public:
+public:
 
-		typedef FeatMol < MolType, FeatureType, ActivityType >* MolRef ;
-		typedef shared_ptr<FeatMol < MolType, FeatureType, ActivityType > > sMolRef ;
+    typedef FeatMol < MolType, FeatureType, ActivityType >* MolRef ;
+    typedef shared_ptr<FeatMol < MolType, FeatureType, ActivityType > > sMolRef ;
 
-	private:
+private:
 
-		vector<sMolRef> compounds;
-		shared_ptr<Out> out;
+    vector<sMolRef> compounds;
+    shared_ptr<Out> out;
 
-	public:
+public:
 
-        ~MolVect() {};
-		MolVect() {};
+    ~MolVect() {};
+    MolVect() {};
 
-		//! MolVect constructor: reads SMILES from file (called by FeatMolVect())
-		MolVect(char * structure_file, shared_ptr<Out> out);
+    //! MolVect constructor: reads SMILES from file (called by FeatMolVect())
+    MolVect(char * structure_file, shared_ptr<Out> out);
 
-		//! add a new feature to compound comp_nr
-		void add_feature(int comp_nr, Feature<FeatureType> * feat_ptr) {
-			compounds[comp_nr]->add_feature(feat_ptr);
-		};
+    //! add a new feature to compound comp_nr
+    void add_feature(int comp_nr, Feature<FeatureType> * feat_ptr) {
+        compounds[comp_nr]->add_feature(feat_ptr);
+    };
 
-		//! determine common features with the training compounds. Results are used to find neighbors later.
-		void common_features(sMolRef test_compound);
+    //! determine common features with the training compounds. Results are used to find neighbors later.
+    void common_features(sMolRef test_compound);
 
-		//! Determine similarity as weighted tanimoto index.
-		void relevant_features(sMolRef test, string act);
+    //! Determine similarity as weighted tanimoto index.
+    void relevant_features(sMolRef test, string act);
 
-		//! determine unknown features
-		void determine_unknown(string act, sMolRef test);
+    //! determine unknown features
+    void determine_unknown(string act, sMolRef test);
 
-		//! remove duplicates of the query structure
-		vector<sMolRef> remove_duplicates(sMolRef test_comp);
+    //! remove duplicates of the query structure
+    vector<sMolRef> remove_duplicates(sMolRef test_comp);
 
-		//! Get Neighbors by using at least five compounds if any neighbors available
-		void get_neighbors(string act, vector<sMolRef>* neighbors);
+    //! Get Neighbors by using at least five compounds if any neighbors available
+    void get_neighbors(string act, vector<sMolRef>* neighbors);
 
-		vector<sMolRef> get_compounds() { return(compounds); };
+    vector<sMolRef> get_compounds() {
+        return(compounds);
+    };
 
-		sMolRef get_compound(int n) { return(compounds[n]); };
+    sMolRef get_compound(int n) {
+        return(compounds[n]);
+    };
 
-		int get_size() { return(compounds.size()); };
+    int get_size() {
+        return(compounds.size());
+    };
 
-		sMolRef get_molfromid(string id);
-		vector<string> get_idfromsmi(string smi);
-		vector<string> get_idfrominchi(string inchi);
+    sMolRef get_molfromid(string id);
+    vector<string> get_idfromsmi(string smi);
+    vector<string> get_idfrominchi(string inchi);
 
 
 };
@@ -87,142 +93,142 @@ class MolVect {
 template <class MolType, class FeatureType, class ActivityType>
 MolVect<MolType, FeatureType, ActivityType>::MolVect(char * structure_file, shared_ptr<Out> out): out(out) {
 
-	string line;
-	string tmp_field;
-	string id;
-	string smi;
-	string inchi;
-	vector<string> ids, dup_ids;
-	vector<string>::iterator dup_id;
-	vector<string> inchis;
-	vector<string>::iterator dup_inchi;
+    string line;
+    string tmp_field;
+    string id;
+    string smi;
+    string inchi;
+    vector<string> ids, dup_ids;
+    vector<string>::iterator dup_id;
+    vector<string> inchis;
+    vector<string>::iterator dup_inchi;
 
-	sMolRef mol_ptr;
-	int line_nr = 0;
+    sMolRef mol_ptr;
+    int line_nr = 0;
 
-	ifstream input;
-	input.open(structure_file);
+    ifstream input;
+    input.open(structure_file);
 
-	if (!input) {
-		*out << "Cannot open " << structure_file << endl;
-		out->print_err();
-		exit(1);
-	}
+    if (!input) {
+        *out << "Cannot open " << structure_file << endl;
+        out->print_err();
+        exit(1);
+    }
 
-	*out << "Reading structures from " << structure_file << endl;
-	out->print_err();
+    *out << "Reading structures from " << structure_file << endl;
+    out->print_err();
 
-	line_nr = 0;
+    line_nr = 0;
 
-	while (getline(input, line)) {
+    while (getline(input, line)) {
 
-		istringstream iss(line);
+        istringstream iss(line);
 
-		int field_nr = 0;
-		id = -1;
-		smi = "";
+        int field_nr = 0;
+        id = -1;
+        smi = "";
 
-		while(getline(iss, tmp_field, '\t')) {	// split at tabs
+        while (getline(iss, tmp_field, '\t')) {	// split at tabs
 
-			if (field_nr == 0)
-				id = tmp_field;
-			else if (field_nr == 1)
-				smi = tmp_field;
+            if (field_nr == 0)
+                id = tmp_field;
+            else if (field_nr == 1)
+                smi = tmp_field;
 
-			field_nr++;
-		}
+            field_nr++;
+        }
 
-		// ID
-		dup_id = find(ids.begin(), ids.end(), id);
+        // ID
+        dup_id = find(ids.begin(), ids.end(), id);
 
-		if (dup_id == ids.end())
-			ids.push_back(id);
+        if (dup_id == ids.end())
+            ids.push_back(id);
 
-		else {
-			*out << id << " (line " << line_nr << ") is not a unique ID ... exiting.\n";
-			out->print_err();
-			exit(1);
-		}
+        else {
+            *out << id << " (line " << line_nr << ") is not a unique ID ... exiting.\n";
+            out->print_err();
+            exit(1);
+        }
 
-		// SMILES
-		remove_dos_cr(&smi);
+        // SMILES
+        remove_dos_cr(&smi);
 
-		mol_ptr.reset(new FeatMol<MolType,FeatureType,ActivityType>(line_nr, id, smi,out));
+        mol_ptr.reset(new FeatMol<MolType,FeatureType,ActivityType>(line_nr, id, smi,out));
 
-		inchi = mol_ptr->get_inchi();
+        inchi = mol_ptr->get_inchi();
 
-		// do not print duplicate warning for empty smiles
-		// (warning already printed in FeatMol constructor)
-		if (inchi.size()>0)
-		{
-			dup_inchi = find(inchis.begin(), inchis.end(), inchi);
+        // do not print duplicate warning for empty smiles
+        // (warning already printed in FeatMol constructor)
+        if (inchi.size()>0)
+        {
+            dup_inchi = find(inchis.begin(), inchis.end(), inchi);
 
-			if (dup_inchi == inchis.end())
-				inchis.push_back(inchi);
-			else {
-				dup_ids =  this->get_idfrominchi(inchi);
-				*out << "Compounds " << id ;
-				for (dup_id=dup_ids.begin();dup_id!=dup_ids.end();dup_id++) {
-					*out << " and " << *dup_id;
-				}
-				*out << " have identical structures.\n";
-				out->print_err();
-			}
-		}
+            if (dup_inchi == inchis.end())
+                inchis.push_back(inchi);
+            else {
+                dup_ids =  this->get_idfrominchi(inchi);
+                *out << "Compounds " << id ;
+                for (dup_id=dup_ids.begin();dup_id!=dup_ids.end();dup_id++) {
+                    *out << " and " << *dup_id;
+                }
+                *out << " have identical structures.\n";
+                out->print_err();
+            }
+        }
 
-		compounds.push_back(mol_ptr);
-		line_nr++;
-	}
+        compounds.push_back(mol_ptr);
+        line_nr++;
+    }
 
-	input.close();
+    input.close();
 };
 
 
 template <class MolType, class FeatureType, class ActivityType>
 vector<shared_ptr<FeatMol < MolType, FeatureType, ActivityType > > > MolVect<MolType, FeatureType, ActivityType>::remove_duplicates(sMolRef test_comp) {
 
-	vector<sMolRef> duplicates;
-	typename vector<sMolRef>::iterator cur_mol;
+    vector<sMolRef> duplicates;
+    typename vector<sMolRef>::iterator cur_mol;
 
-	test_comp->clear_db_activities();
+    test_comp->clear_db_activities();
 
-	for (cur_mol=compounds.begin();cur_mol!=compounds.end();cur_mol++) {
-		if ((*cur_mol)->equal(test_comp)) {
-			(*cur_mol)->copy_activities(test_comp); // copy database activities to test structure (for external predictions)
-			duplicates.push_back((*cur_mol));
-			(*cur_mol)->remove();
-		}
-	}
-	return(duplicates);
+    for (cur_mol=compounds.begin();cur_mol!=compounds.end();cur_mol++) {
+        if ((*cur_mol)->equal(test_comp)) {
+            (*cur_mol)->copy_activities(test_comp); // copy database activities to test structure (for external predictions)
+            duplicates.push_back((*cur_mol));
+            (*cur_mol)->remove();
+        }
+    }
+    return(duplicates);
 };
 
 template <class MolType, class FeatureType, class ActivityType>
 void MolVect<MolType, FeatureType, ActivityType>::common_features(sMolRef test) {
 
-	typename vector<sMolRef>::iterator cur_mol;
+    typename vector<sMolRef>::iterator cur_mol;
 
-	for (cur_mol=compounds.begin();cur_mol!=compounds.end();cur_mol++) {
-		(*cur_mol)->common_features(test);
-	}
+    for (cur_mol=compounds.begin();cur_mol!=compounds.end();cur_mol++) {
+        (*cur_mol)->common_features(test);
+    }
 
 };
 
 template <class MolType, class FeatureType, class ActivityType>
 void MolVect<MolType, FeatureType, ActivityType>::relevant_features(sMolRef test, string act) {
 
-	typename vector<sMolRef>::iterator cur_mol;
+    typename vector<sMolRef>::iterator cur_mol;
 
-	for (cur_mol=compounds.begin();cur_mol!=compounds.end();cur_mol++) {
-		(*cur_mol)->relevant_features(test, act);
-	}
+    for (cur_mol=compounds.begin();cur_mol!=compounds.end();cur_mol++) {
+        (*cur_mol)->relevant_features(test, act);
+    }
 
 };
 
 template <class MolType, class FeatureType, class ActivityType>
 void MolVect<MolType, FeatureType, ActivityType>::get_neighbors(string act, vector<sMolRef>* neighbors) {
 
-	typename vector<sMolRef>::iterator cur_mol;
-	neighbors->clear();
+    typename vector<sMolRef>::iterator cur_mol;
+    neighbors->clear();
 
 
     multimap<float,sMolRef> sim_sorted_neighbors;
@@ -296,43 +302,43 @@ void MolVect<MolType, FeatureType, ActivityType>::determine_unknown(string act, 
 template <class MolType, class FeatureType, class ActivityType>
 vector<string>  MolVect<MolType, FeatureType, ActivityType>::get_idfromsmi(string smi) {
 
-	typename vector<MolRef>::iterator cur_mol;
-	vector<string> ids;
+    typename vector<MolRef>::iterator cur_mol;
+    vector<string> ids;
 
-	for (cur_mol=compounds.begin(); cur_mol!= compounds.end(); cur_mol++) {
-		if ((*cur_mol)->get_smiles()==smi)
-			ids.push_back((*cur_mol)->get_id());
-	}
-	return(ids);
+    for (cur_mol=compounds.begin(); cur_mol!= compounds.end(); cur_mol++) {
+        if ((*cur_mol)->get_smiles()==smi)
+            ids.push_back((*cur_mol)->get_id());
+    }
+    return(ids);
 };
 
 template <class MolType, class FeatureType, class ActivityType>
 vector<string>  MolVect<MolType, FeatureType, ActivityType>::get_idfrominchi(string inchi) {
 
-	typename vector<sMolRef>::iterator cur_mol;
-	vector<string> ids;
+    typename vector<sMolRef>::iterator cur_mol;
+    vector<string> ids;
 
-	for (cur_mol=compounds.begin(); cur_mol!= compounds.end(); cur_mol++) {
-		if ((*cur_mol)->get_inchi()==inchi)
-			ids.push_back((*cur_mol)->get_id());
-	}
-	return(ids);
+    for (cur_mol=compounds.begin(); cur_mol!= compounds.end(); cur_mol++) {
+        if ((*cur_mol)->get_inchi()==inchi)
+            ids.push_back((*cur_mol)->get_id());
+    }
+    return(ids);
 };
 
 template <class MolType, class FeatureType, class ActivityType>
 shared_ptr<FeatMol<MolType, FeatureType, ActivityType > > MolVect<MolType, FeatureType, ActivityType>::get_molfromid(string id) {
 
-	typename vector<sMolRef>::iterator cur_mol;
+    typename vector<sMolRef>::iterator cur_mol;
 
-	for (cur_mol=compounds.begin(); cur_mol!= compounds.end(); cur_mol++) {
-		if ((*cur_mol)->get_id()==id)
-			break;
-	}
+    for (cur_mol=compounds.begin(); cur_mol!= compounds.end(); cur_mol++) {
+        if ((*cur_mol)->get_id()==id)
+            break;
+    }
 
-	if (cur_mol == compounds.end())
-		return(sMolRef());
-	else
-		return(*cur_mol);
+    if (cur_mol == compounds.end())
+        return(sMolRef());
+    else
+        return(*cur_mol);
 
 };
 
