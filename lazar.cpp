@@ -201,11 +201,11 @@ int main(int argc, char *argv[], char *envp[]) {
                 out->print();
                 if (!quantitative) {
                     train_set_c.reset( new Predictor<OBLazMol,ClassFeat,bool>(smi_file, train_file, feature_file, alphabet_file, input_file, out) );
-                    train_set_c->predict_ext(); // AM: start SMILES -> predictor.h
+                    train_set_c->predict_file(); // AM: start SMILES -> predictor.h
                 }
                 else {
                     train_set_r.reset ( new Predictor<OBLazMol,RegrFeat,float>(smi_file, train_file, feature_file, alphabet_file, input_file, out) );
-                    train_set_r->predict_ext(); // AM: start SMILES -> predictor.h
+                    train_set_r->predict_file(); // AM: start SMILES -> predictor.h
                 }
                 out->print();
             }

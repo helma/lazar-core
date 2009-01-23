@@ -141,7 +141,6 @@ void Predictor<MolType, FeatureType, ActivityType>::predict_ext() {
 
     for (int n = 0; n < test_size; n++) {
         cur_mol = test_structures->get_compound(n);
-        //delete feat_gen;
         feat_gen.reset( new FeatGen <MolType, FeatureType, ActivityType>(a_file, train_structures, cur_mol,out) );
         feat_gen->generate_linfrag(train_structures,cur_mol);
 
@@ -161,7 +160,6 @@ void Predictor<MolType, FeatureType, ActivityType>::predict_ext() {
 template <class MolType, class FeatureType, class ActivityType>
 void Predictor<MolType, FeatureType, ActivityType>::predict_file() {
 
-    bool recalculate = true;
     typename vector<sMolRef>::iterator cur_dup;
 
     sMolRef cur_mol;
@@ -170,7 +168,6 @@ void Predictor<MolType, FeatureType, ActivityType>::predict_file() {
     for (int n = 0; n < test_size; n++) {
 
         cur_mol = test_structures->get_compound(n);
-        //delete feat_gen;
         feat_gen.reset(new FeatGen <MolType, FeatureType, ActivityType>(a_file, train_structures, cur_mol,out));
         feat_gen->generate_linfrag(train_structures,cur_mol);
 
@@ -194,11 +191,6 @@ void Predictor<MolType, FeatureType, ActivityType>::predict_file() {
             this->predict(cur_mol, true, true);
         else if (duplicates.size() > 0) {
             this->predict(cur_mol, true, true);
-            recalculate = true;
-        }
-        else if (recalculate) {
-            this->predict(cur_mol, true, true);
-            recalculate = false;
         }
         else
             this->predict(cur_mol, false, true);
@@ -333,6 +325,7 @@ void Predictor<MolType, FeatureType, ActivityType>::predict(sMolRef test, bool r
         if (!loo || test->db_act_available(*cur_act)) {	// make loo predictions only for activities with measured values
 
             *out << "---\n";
+            out->print();
 
             if (recalculate) {
 
@@ -380,7 +373,7 @@ void Predictor<MolType, FeatureType, ActivityType>::predict(sMolRef test, bool r
             // MG
         }
 
-        else cerr << "test db act not avail" << endl;
+        else cerr << "Database activity not available." << endl;
     }
 
 };
