@@ -23,7 +23,7 @@ LDFLAGS       = -L/usr/local/lib/R/lib
 all: $(PROGRAM) $(FEAT_GEN) $(TOOLS)
 
 .PHONY:
-doc: $(OBJ) $(HEADERS) $(PROGRAM) $(FEAT_GEN) $(TOOLS) Doxyfile
+doc: Doxyfile
 	doxygen Doxyfile
 
 lazar: $(OBJ)  lazar.o 

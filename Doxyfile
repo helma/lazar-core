@@ -578,7 +578,7 @@ TREEVIEW_WIDTH         = 250
 # If the GENERATE_LATEX tag is set to YES (the default) Doxygen will 
 # generate Latex output.
 
-GENERATE_LATEX         = YES
+GENERATE_LATEX         = NO
 
 # The LATEX_OUTPUT tag is used to specify where the LaTeX docs will be put. 
 # If a relative path is entered the value of OUTPUT_DIRECTORY will be 
@@ -991,3 +991,7 @@ BIN_ABSPATH            = /usr/local/bin/
 # the documentation for these projects as well.
 
 EXT_DOC_PATHS          = 
+
+# AM: reveal function calling
+CALLER_GRAPH           = YES
+CALL_GRAPH             = YES
