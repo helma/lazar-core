@@ -75,10 +75,10 @@ public:
     void generate_linfrag(shared_ptr<FeatMolVect< MolType, FeatureType, ActivityType > > train_structures, sMolRef test_mol);
 
     //! Prints testset for random selection
-    void generate_testset(int p, Out* out);
+    void generate_testset(int p, shared_ptr<Out> out);
 
     //! Prints testset for a fold, i.e. non-random consecutive.
-    void generate_testset(int p, int pos, Out* out);
+    void generate_testset(int p, int pos, shared_ptr<Out> out);
 
     //! generate rex fragments
     void generate_rex(int max_l);
@@ -162,12 +162,12 @@ void FeatGen<MolType, FeatureType, ActivityType>::generate_linfrag(shared_ptr<Fe
 
 //! Prints testset for random selection
 template <class MolType, class FeatureType, class ActivityType>
-void FeatGen<MolType, FeatureType, ActivityType>::generate_testset(int p, Out* out) {
+void FeatGen<MolType, FeatureType, ActivityType>::generate_testset(int p, shared_ptr<Out> out) {
 
-    typename vector<MolRef>::iterator vmr_it;
-    vector<MolRef> s = structures->get_compounds();
-    vector<MolRef> drawn;
-    MolRef m = NULL;
+    typename vector<sMolRef>::iterator vmr_it;
+    vector<sMolRef> s = structures->get_compounds();
+    vector<sMolRef> drawn;
+    sMolRef m;
     double dpos = 0.0;
 
     float frac = (100.0 / (float) p);
@@ -195,10 +195,10 @@ void FeatGen<MolType, FeatureType, ActivityType>::generate_testset(int p, Out* o
 
 //! Prints testset for a fold, i.e. non-random consecutive.
 template <class MolType, class FeatureType, class ActivityType>
-void FeatGen<MolType, FeatureType, ActivityType>::generate_testset(int p, int pos, Out* out) {
+void FeatGen<MolType, FeatureType, ActivityType>::generate_testset(int p, int pos, shared_ptr<Out> out) {
 
-    vector<MolRef> s = structures->get_compounds();
-    MolRef m = NULL;
+    vector<sMolRef> s = structures->get_compounds();
+    sMolRef m;
 
     float frac = (100.0 / (float) p);
     int calculated_set_size = (int) (s.size()/frac);

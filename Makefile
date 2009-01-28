@@ -44,6 +44,9 @@ chisq-filter: $(OBJ)  chisq-filter.o
 smarts-features: $(OBJ)  smarts-features.o 
 	$(CC) $(CXXFLAGS) $(INCLUDE) $(LIBS) $(LDFLAGS) $(RPATH) -o smarts-features $(OBJ)  smarts-features.o 
 
+testset: $(OBJ)  testset.o 
+	$(CC) $(CXXFLAGS) $(INCLUDE) $(LIBS) $(LDFLAGS) $(RPATH) -o testset $(OBJ)  testset.o 
+
 chisq-filter.o: $(HEADERS) activity-db.h feature-db.h 
 
 rex.o: $(HEADERS) feature-generation.h
@@ -63,6 +66,8 @@ feature.o: feature.h
 io.o: io.cpp io.h $(SERVER_OBJ)
 
 rutils.o: rutils.h
+
+testset.o: feature-generation.h
 
 .PHONY:
 clean:
