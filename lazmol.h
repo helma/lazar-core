@@ -229,6 +229,10 @@ public:
         return(features);
     };
 
+    void set_features(FeatVect f) {
+	    features=f;
+    };
+
     void print_features(string act);
 
     void add_feature(Feature<FeatureType> * feat);

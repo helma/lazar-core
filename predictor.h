@@ -92,8 +92,10 @@ public:
     //! predict a single smiles
     void predict_smi(string smiles);
 
-    //! batch predictions
-    void predict_ext();
+    //! batch prediction: predict witheld fold, i.e. compounds must occur in smi database, do "make testset" to generate fold tool.
+    void predict_fold();
+
+    //! batch predictions: predict arbitrary comps.
     void predict_file();
 
     //! leave one out crossvalidation
@@ -119,7 +121,7 @@ public:
 };
 
 template <class MolType, class FeatureType, class ActivityType>
-void Predictor<MolType, FeatureType, ActivityType>::predict_ext() {
+void Predictor<MolType, FeatureType, ActivityType>::predict_fold() {
 
     typename vector<sMolRef>::iterator cur_dup;
 
@@ -129,9 +131,11 @@ void Predictor<MolType, FeatureType, ActivityType>::predict_ext() {
 
     for (int n = 0; n < test_size; n++) {
         cur_mol = test_structures->get_compound(n);
-        //delete feat_gen;
 
         vector<sMolRef> duplicates = train_structures->remove_duplicates(cur_mol);
+    	// copy features from withheld compounds instead of generating them
+	    cur_mol->set_features(duplicates[0]->get_features());
+
         if (duplicates.size()) {
             *out << int(duplicates.size()) << " instances of " << cur_mol->get_smiles() << " removed from the training set!\n";
             out->print_err();
@@ -141,8 +145,6 @@ void Predictor<MolType, FeatureType, ActivityType>::predict_ext() {
 
     for (int n = 0; n < test_size; n++) {
         cur_mol = test_structures->get_compound(n);
-        feat_gen.reset( new FeatGen <MolType, FeatureType, ActivityType>(a_file, train_structures, cur_mol,out) );
-        feat_gen->generate_linfrag(train_structures,cur_mol);
 
         *out << "Predicting external test id " << cur_mol->get_id() << endl;
         out->print_err();
