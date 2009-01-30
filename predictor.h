@@ -129,26 +129,27 @@ void Predictor<MolType, FeatureType, ActivityType>::predict_fold() {
     sMolRef cur_mol;
     int test_size = test_structures->get_size();
  
-    // ADD FRAGMENTS FROM THE TRAINING SET TO TEST SET STRUCTURES
     vector<sFeatRef>* features = train_structures->get_features();
     typename vector<sFeatRef>::iterator feat_it;
-    vector<OBSmartsPattern> frags;
-    for (feat_it=features->begin(); feat_it!=features->end(); feat_it++) {
-        shared_ptr<OBSmartsPattern> frag (new OBSmartsPattern() );
-        if (!frag->Init((*feat_it)->get_name())) {
-            cerr << "Warning! predict_fold(): OBSmartsFrag '" << (*feat_it)->get_name() << "' failed to initialize!" << endl;
-        }
-        else {
-            if (frag->Match((*(cur_mol->get_mol_ref())),true)) {
-                cur_mol->add_feature((*feat_it).get());
-            }
-        }
-    }
 
-    // REMOVE ALL TEST STRUCTURES
+
+    // ADD FRAGMENTS FROM THE TRAINING SET TO TEST SET STRUCTURES
     for (int n = 0; n < test_size; n++) {
         cur_mol = test_structures->get_compound(n);
+    	for (feat_it=features->begin(); feat_it!=features->end(); feat_it++) {
+            shared_ptr<OBSmartsPattern> frag (new OBSmartsPattern() );
+            if (!frag->Init((*feat_it)->get_name())) {
+                cerr << "Warning! predict_fold(): OBSmartsFrag '" << (*feat_it)->get_name() << "' failed to initialize!" << endl;
+            }
+	    else {
+	    	if ( frag->Match((*(cur_mol->get_mol_ref())),true) ) {
+                    cur_mol->add_feature((*feat_it).get());
+		}
+	    }
+	}
+	
 
+        // REMOVE ALL TEST STRUCTURES
         vector<sMolRef> duplicates = train_structures->remove_duplicates(cur_mol);
 
         if (duplicates.size()) {
