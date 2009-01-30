@@ -124,17 +124,32 @@ template <class MolType, class FeatureType, class ActivityType>
 void Predictor<MolType, FeatureType, ActivityType>::predict_fold() {
 
     typename vector<sMolRef>::iterator cur_dup;
+    typedef shared_ptr<Feature<FeatureType> > sFeatRef;
 
     sMolRef cur_mol;
     int test_size = test_structures->get_size();
+ 
+    // ADD FRAGMENTS FROM THE TRAINING SET TO TEST SET STRUCTURES
+    vector<sFeatRef>* features = train_structures->get_features();
+    typename vector<sFeatRef>::iterator feat_it;
+    vector<OBSmartsPattern> frags;
+    for (feat_it=features->begin(); feat_it!=features->end(); feat_it++) {
+        shared_ptr<OBSmartsPattern> frag (new OBSmartsPattern() );
+        if (!frag->Init((*feat_it)->get_name())) {
+            cerr << "Warning! predict_fold(): OBSmartsFrag '" << (*feat_it)->get_name() << "' failed to initialize!" << endl;
+        }
+        else {
+            if (frag->Match((*(cur_mol->get_mol_ref())),true)) {
+                cur_mol->add_feature((*feat_it).get());
+            }
+        }
+    }
 
-
+    // REMOVE ALL TEST STRUCTURES
     for (int n = 0; n < test_size; n++) {
         cur_mol = test_structures->get_compound(n);
 
         vector<sMolRef> duplicates = train_structures->remove_duplicates(cur_mol);
-    	// copy features from withheld compounds instead of generating them
-	    cur_mol->set_features(duplicates[0]->get_features());
 
         if (duplicates.size()) {
             *out << int(duplicates.size()) << " instances of " << cur_mol->get_smiles() << " removed from the training set!\n";
@@ -143,6 +158,7 @@ void Predictor<MolType, FeatureType, ActivityType>::predict_fold() {
 
     }
 
+    // PREDICT FOLD
     for (int n = 0; n < test_size; n++) {
         cur_mol = test_structures->get_compound(n);
 
