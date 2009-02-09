@@ -38,10 +38,11 @@ public:
     typedef FeatMol < MolType, FeatureType, ActivityType >* MolRef ;
     typedef shared_ptr<FeatMol < MolType, FeatureType, ActivityType > > sMolRef ;
 
-private:
+protected:
 
     vector<sMolRef> compounds;
     shared_ptr<Out> out;
+    map<string, int> id2line_map;
 
 public:
 
@@ -86,6 +87,7 @@ public:
     sMolRef get_molfromid(string id);
     vector<string> get_idfromsmi(string smi);
     vector<string> get_idfrominchi(string inchi);
+    int get_linenrfromid(string id);
 
 
 };
@@ -177,6 +179,7 @@ MolVect<MolType, FeatureType, ActivityType>::MolVect(char * structure_file, shar
         }
 
         compounds.push_back(mol_ptr);
+	id2line_map.insert(make_pair(id, line_nr));
         line_nr++;
     }
 
@@ -340,6 +343,11 @@ shared_ptr<FeatMol<MolType, FeatureType, ActivityType > > MolVect<MolType, Featu
     else
         return(*cur_mol);
 
+};
+
+template <class MolType, class FeatureType, class ActivityType>
+int MolVect<MolType, FeatureType, ActivityType>::get_linenrfromid(string id) {
+	return id2line_map[id];
 };
 
 #endif

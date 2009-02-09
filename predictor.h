@@ -132,6 +132,8 @@ void Predictor<MolType, FeatureType, ActivityType>::predict_fold() {
     vector<sFeatRef>* features = train_structures->get_features();
     typename vector<sFeatRef>::iterator feat_it;
 
+    //AM: WEKA
+    map<string, vector<string> > feat_map;
 
     // ADD FRAGMENTS FROM THE TRAINING SET TO TEST SET STRUCTURES
     for (int n = 0; n < test_size; n++) {
@@ -144,20 +146,37 @@ void Predictor<MolType, FeatureType, ActivityType>::predict_fold() {
 	    else {
 	    	if ( frag->Match((*(cur_mol->get_mol_ref())),true) ) {
                     cur_mol->add_feature((*feat_it).get());
+		    feat_map[(*feat_it)->get_name()].push_back(cur_mol->get_id());
 		}
 	    }
 	}
 	
-
         // REMOVE ALL TEST STRUCTURES
         vector<sMolRef> duplicates = train_structures->remove_duplicates(cur_mol);
-
         if (duplicates.size()) {
             *out << int(duplicates.size()) << " instances of " << cur_mol->get_smiles() << " removed from the training set!\n";
             out->print_err();
         }
 
     }
+
+    for (feat_it=features->begin(); feat_it!=features->end(); feat_it++) {
+         if (feat_map[(*feat_it)->get_name()].size() == 0)
+	    feat_map[(*feat_it)->get_name()].push_back("");
+    }
+
+    // CAN USE BELOW BLOCK TO OUTPUT TEST FRAGNENTS
+    /*
+    typename map<string, vector<string> >::iterator feat_map_it;
+    for (feat_map_it = feat_map.begin(); feat_map_it != feat_map.end(); feat_map_it++) {
+	    cout << feat_map_it->first << "\t[ ";
+	    typename vector<string>::iterator c_it;
+	    for (c_it = feat_map_it->second.begin(); c_it != feat_map_it->second.end(); c_it++) {
+		    cout << (*c_it)  << " ";
+	    }
+	    cout << "]" << endl;
+    }
+    */
 
     // PREDICT FOLD
     for (int n = 0; n < test_size; n++) {

@@ -124,8 +124,15 @@ FeatMolVect<MolType, FeatureType, ActivityType>::FeatMolVect(char * feat_file, c
                     else if ( tokens[i] == "]" )
                         break;
 
-                    int comp_nr = atoi(tokens[i].c_str());
-                    feat_ptr->add_match(comp_nr);	// comp_nr is line number
+                    string comp_id = tokens[i].c_str();
+		   
+		    // AM: read id instead of line no
+		    //int comp_nr = this->get_linenrfromid(comp_id);
+
+		    // AM: OLD IMPLEEMENTATION
+		    int comp_nr = atoi(comp_id.c_str());
+
+                    feat_ptr->add_match(comp_nr);
                     this->get_compound(comp_nr)->add_feature(feat_ptr.get());
 
                 }

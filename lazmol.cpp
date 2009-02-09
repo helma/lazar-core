@@ -79,6 +79,12 @@ OBLazMol::OBLazMol(int nr, string new_descr, string new_smiles, shared_ptr<Out> 
         out->print_err();
     }
     else {
+        mol.SetAromaticPerceived();
+//          FOR_BONDS_OF_MOL (bond, mol)
+//        bond->UnsetAromatic();
+//          FOR_ATOMS_OF_MOL (atom, mol)
+//        atom->UnsetAromatic(); 
+
         // don't warn about undefined stereo
         conv.SetOptions("w",OBConversion::OUTOPTIONS);
         string inchi = conv.WriteString(&mol);
