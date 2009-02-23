@@ -169,6 +169,7 @@ int main(int argc, char *argv[], char *envp[]) {
     memset (&sa, 0, sizeof (sa));
     sa.sa_handler = SIG_DFL;
     sigaction (SIGINT, &sa, NULL);
+    sigaction (SIGSEGV, &sa, NULL);
 
     // start predictions
     if (!daemon) {            // keep writing to STDOUT/STDERR
