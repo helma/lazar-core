@@ -1,27 +1,37 @@
+# "BEGIN DECLARATION SECTION"
 %module lazar
 %{
 #include "predictor.h"
 %}
-
-# "AM: use swig string conversion support"
+# "use swig string conversion support"
 %include "std_string.i"
 typedef std::string String;
 using namespace std;
+# "use swig STL conversion support"
+%include "std_vector.i"
+# "END DECLARATION SECTION"
 
 
-# "AM: inline helper functions, passed both to swig and wrapper file"
+
+# "BEGIN INLINE SECTION"
+# "inline helper functions, passed both to swig and wrapper file"
 %inline %{
+# "needed to make smart pointers from target language
 shared_ptr<Out> getConsoleOut() {
     shared_ptr<Out> out (new ConsoleOut());
     return out;
 };
-
+# "needed to make smart pointers from target language
 shared_ptr<FeatMol <OBLazMol, ClassFeat, bool> > getClassMol (string smiles, shared_ptr<Out> out) {
     shared_ptr<FeatMol <OBLazMol, ClassFeat, bool> > cur_mol ( new FeatMol<OBLazMol, ClassFeat, bool>(0,"test structure",smiles,out) );
     return cur_mol;
 };
 %}
+# "END INLINE SECTION"
 
+
+
+# "BEGIN WRAPPING SECTION"
 # "AM: Predictor"
 template <class MolType, class FeatureType, class ActivityType>
 class Predictor {
@@ -48,3 +58,4 @@ class Predictor {
         
 };
 %template(ClassificationPredictor) Predictor<OBLazMol, ClassFeat, bool>;
+# "END WRAPPING SECTION"
