@@ -13,11 +13,22 @@ OBJ += $(SERVER_OBJ)
 
 CC            = g++
 #CXXFLAGS      = -g -O2 -I/usr/include/openbabel-2.0/ -I../R-2.8.0/include/ -I../gsl-1.9/bin/include/ -Wall
-CXXFLAGS      = -g -O2 -I/usr/local/include/openbabel-2.0/ -I/usr/local/lib/R/include -Wall
-LIBS	      = -lm -ldl -lopenbabel -lgslcblas -lgsl -lRblas -lRlapack -lR
-LDFLAGS       = -L/usr/local/lib/R/lib
+INCLUDE       = -I/usr/local/include/openbabel-2.0/ -I/usr/local/include/fminer -I/usr/share/R/include
+CXXFLAGS      = -O3 -g $(INCLUDE) -Wall -fPIC
+LIBS	      = -lm -ldl -lopenbabel -lgslcblas -lgsl -lRblas -lRlapack -lR -lfminer
+LDFLAGS       = -L/usr/local/lib
 #LDFLAGS       = -L../gsl-1.9/bin/lib -L../R-2.8.0/lib -L../R-2.8.0/bin/lib64/R/modules/
-#RPATH         = -Wl,-rpath=../R-2.8.0/lib
+#RPATH         = -Wl,-rpath=/home/am/validations/libfminer
+SWIG          = swig
+SWIGFLAGS     = -c++ -ruby
+RUBY_INC      = -I/usr/lib/ruby/1.8/i486-linux/
+
+%.cxx: %.i
+	$(SWIG) $(SWIGFLAGS) -o $@ $^
+lazar_wrap.o: lazar_wrap.cxx
+	$(CC) $(RUBY_INC) $(INCLUDE) -c -o $@ $^
+lazar.so: lazar_wrap.o $(OBJ)
+	$(CC) -shared $(CXXFLAGS) $(LIBS) $(LDFLAGS) $^ /usr/local/lib/libopenbabel.so /usr/lib/libgsl.so -o $@
 
 .PHONY:
 all: $(PROGRAM) $(FEAT_GEN) $(TOOLS)

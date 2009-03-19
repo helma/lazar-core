@@ -25,11 +25,6 @@ using namespace std;
 
 float sig_thr=0.9;
 
-void remove_dos_cr(string* str) {
-    string nl = "\r";
-    for (string::size_type i = str->find(nl); i!=string::npos; i=str->find(nl)) str->erase(i,1); // erase dos cr
-}
-
 //! generate all linear fragments
 int main(int argc, char *argv[]) {
 

@@ -58,8 +58,8 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    ConsoleOut * out;
-    out = new ConsoleOut();
+    shared_ptr<ConsoleOut> out;
+    out.reset(new ConsoleOut());
 
     if (status | !t_file | !a_file) {
         fprintf(stderr, "usage: %s -s id_and_smiles -a table_of_elements [ -l max_size] \n",argv[0]);

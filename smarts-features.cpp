@@ -54,8 +54,8 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    ConsoleOut * out;
-    out = new ConsoleOut();
+    shared_ptr<ConsoleOut> out;
+    out.reset(new ConsoleOut());
 
     if (status | !t_file | !s_file) {
         fprintf(stderr, "usage: %s -s training_structures -f smarts_file\n",argv[0]);

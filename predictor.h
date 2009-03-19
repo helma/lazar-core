@@ -24,6 +24,7 @@
 #include "activity-db.h"
 #include "model.h"
 #include "time.h"
+#include "fminer.h"
 
 using namespace std;
 using namespace OpenBabel;
@@ -40,6 +41,7 @@ public:
 
     typedef FeatMol < MolType, FeatureType, ActivityType > * MolRef ;
     typedef shared_ptr<FeatMol < MolType, FeatureType, ActivityType > > sMolRef ;
+    typedef shared_ptr<FeatMol < OBLazMol, ClassFeat, bool> > sClassMolRef;
     typedef Feature<OBLinFrag> * OBLinFragRef;
     typedef Feature<FeatureType> * FeatRef;
 
@@ -125,6 +127,7 @@ void Predictor<MolType, FeatureType, ActivityType>::predict_fold() {
 
     typename vector<sMolRef>::iterator cur_dup;
     typedef shared_ptr<Feature<FeatureType> > sFeatRef;
+    //Fminer* fminer = NULL; 
 
     sMolRef cur_mol;
     int test_size = test_structures->get_size();
@@ -132,24 +135,53 @@ void Predictor<MolType, FeatureType, ActivityType>::predict_fold() {
     vector<sFeatRef>* features = train_structures->get_features();
     typename vector<sFeatRef>::iterator feat_it;
 
-    //AM: WEKA
     map<string, vector<string> > feat_map;
+
 
     // ADD FRAGMENTS FROM THE TRAINING SET TO TEST SET STRUCTURES
     for (int n = 0; n < test_size; n++) {
         cur_mol = test_structures->get_compound(n);
-    	for (feat_it=features->begin(); feat_it!=features->end(); feat_it++) {
+     
+        /*   
+        delete fminer;
+        fminer = new Fminer();
+
+        fminer->SetChisqActive(false); // Disable activity values
+        fminer->SetConsoleOut(false);
+
+        // Get all fragments
+        fminer->SetMinfreq(1);
+        fminer->SetRefineSingles(true); 
+
+        // Get most specialized pattern of each BBRC
+        fminer->SetMostSpecTreesOnly(true); 
+
+        fminer->AddCompound(cur_mol->get_smiles(), atoi(cur_mol->get_id().c_str()));
+
+        cout << "Mining " << cur_mol->get_smiles() << endl;
+        for (int x = 0; x < (int) fminer->GetNoRootNodes(); x++ ) {
+            vector<string>* result = fminer->MineRoot(x);
+            for(unsigned int y = 0; y < result->size(); y++) {
+                cout << (*result)[y] << endl;
+            }
+        }
+        cout << endl;
+
+        */
+
+
+        for (feat_it=features->begin(); feat_it!=features->end(); feat_it++) {
             shared_ptr<OBSmartsPattern> frag (new OBSmartsPattern() );
             if (!frag->Init((*feat_it)->get_name())) {
                 cerr << "Warning! predict_fold(): OBSmartsFrag '" << (*feat_it)->get_name() << "' failed to initialize!" << endl;
             }
-	    else {
-	    	if ( frag->Match((*(cur_mol->get_mol_ref())),true) ) {
-                    cur_mol->add_feature((*feat_it).get());
-		    feat_map[(*feat_it)->get_name()].push_back(cur_mol->get_id());
-		}
-	    }
-	}
+            else {
+                if ( frag->Match((*(cur_mol->get_mol_ref())),true) ) {
+                     cur_mol->add_feature((*feat_it).get());
+                     feat_map[(*feat_it)->get_name()].push_back(cur_mol->get_id());
+                }
+            }
+        }
 	
         // REMOVE ALL TEST STRUCTURES
         vector<sMolRef> duplicates = train_structures->remove_duplicates(cur_mol);
@@ -159,6 +191,7 @@ void Predictor<MolType, FeatureType, ActivityType>::predict_fold() {
         }
 
     }
+    //delete fminer;
 
     for (feat_it=features->begin(); feat_it!=features->end(); feat_it++) {
          if (feat_map[(*feat_it)->get_name()].size() == 0)

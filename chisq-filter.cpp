@@ -27,6 +27,7 @@ using namespace std;
 float sig_thr=0.9;
 bool quantitative = 0;
 
+
 //! filter features according to their chisquare value
 //! option -n can be used to print chisq, fa, fi
 int main(int argc, char *argv[]) {
@@ -78,8 +79,8 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    ConsoleOut * out;
-    out = new ConsoleOut();
+    shared_ptr<ConsoleOut> out;
+    out.reset(new ConsoleOut());
 
     if (status | !s_file | !t_file | !f_file) {
         fprintf(stderr, "usage: %s -s structures -t training_set -f feature_set [-l min_chisq] [-m smarts] [-n]\n",argv[0]);

@@ -26,8 +26,15 @@
 using namespace std;
 using namespace OpenBabel;
 
-extern bool quantitative;
-extern void remove_dos_cr(string* str);
+float sig_thr = 0.9;
+bool kernel = false;
+bool quantitative = false;
+
+void remove_dos_cr(string* str) {
+    string nl = "\r";
+    for (string::size_type i = str->find(nl); i!=string::npos; i=str->find(nl)) str->erase(i,1); // erase dos cr
+}
+
 
 //! container for LazMol objects
 template <class MolType, class FeatureType, class ActivityType>

@@ -55,8 +55,8 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    ConsoleOut * out;
-    out = new ConsoleOut();
+    shared_ptr<ConsoleOut> out;
+    out.reset(new ConsoleOut());
 
     if (status | !t_file | !a_file) {
         *out << "usage: " << argv[0] << " -s id_and_smiles -a table_of_elements\n";

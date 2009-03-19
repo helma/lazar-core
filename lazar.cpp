@@ -30,20 +30,15 @@
 using namespace std;
 using namespace boost;
 
-float sig_thr = 0.9;
-bool kernel = false;
-bool quantitative = false;
+extern float sig_thr;
+extern bool kernel;
+extern bool quantitative;
 
 // daemon shutdown
 void shutdown(int s) {
     cerr << "Stopping daemon. [" << s << "]\n";
     exit(0);
 };
-
-void remove_dos_cr(string* str) {
-    string nl = "\r";
-    for (string::size_type i = str->find(nl); i!=string::npos; i=str->find(nl)) str->erase(i,1); // erase dos cr
-}
 
 //! lazar predictions
 int main(int argc, char *argv[], char *envp[]) {
