@@ -13,15 +13,26 @@ using namespace std;
 
 
 
+# "BEGIN GLOBAL VARIABLES"
+float sig_thr;
+bool kernel;
+bool quantitative;
+# "END GLOBAL VARIABLES"
+
+
+
 # "BEGIN INLINE SECTION"
 # "inline helper functions, passed both to swig and wrapper file"
+# "needed to make smart pointers from target language"
 %inline %{
-# "needed to make smart pointers from target language
 shared_ptr<Out> getConsoleOut() {
     shared_ptr<Out> out (new ConsoleOut());
     return out;
 };
-# "needed to make smart pointers from target language
+shared_ptr<Out> getSocketOut() {
+    shared_ptr<Out> out (new SocketOut());
+    return out;
+};
 shared_ptr<FeatMol <OBLazMol, ClassFeat, bool> > getClassMol (string smiles, shared_ptr<Out> out) {
     shared_ptr<FeatMol <OBLazMol, ClassFeat, bool> > cur_mol ( new FeatMol<OBLazMol, ClassFeat, bool>(0,"test structure",smiles,out) );
     return cur_mol;

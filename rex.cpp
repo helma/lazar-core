@@ -23,8 +23,6 @@
 
 using namespace std;
 
-float sig_thr=0.9;
-
 //! generete rex fragments
 int main(int argc, char *argv[]) {
 

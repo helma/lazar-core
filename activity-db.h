@@ -183,7 +183,7 @@ vector<ActivityType> ActMolVect<MolType, FeatureType, ActivityType>::get_activit
     typename vector<ActivityType>::iterator cur_a;
 
     for (cur_comp=comp_nrs.begin();cur_comp!=comp_nrs.end();cur_comp++) {
-        if (compounds[*cur_comp]->is_available(act)) {
+        if (compounds[*cur_comp]->is_available(act)) { // *
             tmp = compounds[*cur_comp]->get_act(act);
             for (cur_a=tmp.begin();cur_a!=tmp.end();cur_a++) {
                 activities.push_back(*cur_a);
@@ -191,7 +191,7 @@ vector<ActivityType> ActMolVect<MolType, FeatureType, ActivityType>::get_activit
         }
     }
 
-    return(activities);
+    return(activities); // AM: MAY BE EMPTY DUE TO (*): if feat occ only in duplicates of current test structure (see feature_significance()).
 };
 
 template <class MolType, class FeatureType, class ActivityType>
@@ -362,6 +362,16 @@ void ActMolVect<MolType, FeatureType, ActivityType>::feature_significance(string
         if ((*cur_feat)->nr_matches() > 1) { // remove features that match on a single compound
             feat_activity_values = this->get_activity_values((*cur_feat)->get_matches(), act);
 
+            // DEBUG-AM
+            /*
+            cerr << "Feat: '" << (*cur_feat)->get_name() << "': ";
+            vector<float>::iterator fi;
+            for (fi=feat_activity_values.begin(); fi!=feat_activity_values.end(); fi++) { 
+                cerr << (*fi) << " ";
+            }
+            cerr << endl;
+            */
+
             /*
             sort(feat_activity_values.begin(), feat_activity_values.end());
             sort(all_activity_values.begin(), all_activity_values.end());
@@ -396,7 +406,8 @@ void ActMolVect<MolType, FeatureType, ActivityType>::feature_significance(string
             */
 
             // run K-S test, sensitive version, but with ALL activity values
-            (*cur_feat)->determine_significance(act, all_activity_values, feat_activity_values);
+            if (feat_activity_values.size()) // AM: BUGFIX: Do not calc sig for feat w/o occurrences (possible due to remove_duplicates())
+                (*cur_feat)->determine_significance(act, all_activity_values, feat_activity_values);
         }
 
         else {

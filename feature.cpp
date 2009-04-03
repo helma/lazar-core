@@ -368,6 +368,13 @@ void RegrFeat::determine_significance(string act, vector<float> all_activities, 
     float aasum, aamedian, aamean, aavar, aadev, aaskew, aakurt;
     computeStats(all_activities.begin(), all_activities.end(), aasum, aamedian, aamean, aavar, aadev, aaskew, aakurt);
     float fasum, famedian, famean, favar, fadev, faskew, fakurt;
+    
+    // DEBUG-AM
+    if (!feat_activities.size()) {
+        cerr << "Missing feature activities for " << get_name() << endl;
+        exit(1);
+    }
+
     computeStats(feat_activities.begin(), feat_activities.end(), fasum, famedian, famean, favar, fadev, faskew, fakurt);
 
     median[act]=famedian;

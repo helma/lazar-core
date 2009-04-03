@@ -24,10 +24,6 @@
 
 using namespace std;
 
-float sig_thr=0.9;
-bool quantitative = 0;
-
-
 //! filter features according to their chisquare value
 //! option -n can be used to print chisq, fa, fi
 int main(int argc, char *argv[]) {

@@ -186,7 +186,7 @@ MolVect<MolType, FeatureType, ActivityType>::MolVect(char * structure_file, shar
         }
 
         compounds.push_back(mol_ptr);
-	id2line_map.insert(make_pair(id, line_nr));
+    	id2line_map.insert(make_pair(id, line_nr));
         line_nr++;
     }
 
@@ -197,6 +197,9 @@ MolVect<MolType, FeatureType, ActivityType>::MolVect(char * structure_file, shar
 template <class MolType, class FeatureType, class ActivityType>
 vector<shared_ptr<FeatMol < MolType, FeatureType, ActivityType > > > MolVect<MolType, FeatureType, ActivityType>::remove_duplicates(sMolRef test_comp) {
 
+    
+    cerr << "Removing dupl for ID " << test_comp->get_id() << endl;
+
     vector<sMolRef> duplicates;
     typename vector<sMolRef>::iterator cur_mol;
 
@@ -204,6 +207,7 @@ vector<shared_ptr<FeatMol < MolType, FeatureType, ActivityType > > > MolVect<Mol
 
     for (cur_mol=compounds.begin();cur_mol!=compounds.end();cur_mol++) {
         if ((*cur_mol)->equal(test_comp)) {
+            cerr << "Dup: " << (*cur_mol)->get_id() << endl;
             (*cur_mol)->copy_activities(test_comp); // copy database activities to test structure (for external predictions)
             duplicates.push_back((*cur_mol));
             (*cur_mol)->remove();

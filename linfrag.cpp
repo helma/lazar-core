@@ -23,8 +23,6 @@
 
 using namespace std;
 
-float sig_thr=0.9;
-
 //! generate all linear fragments
 int main(int argc, char *argv[]) {
 
@@ -64,8 +62,10 @@ int main(int argc, char *argv[]) {
         return(status);
     }
 
-    shared_ptr<OBLazMolVect> structures (new OBLazMolVect(structure_file, out));
-    shared_ptr<FeatGen<OBLazMol,OBLinFrag,bool> > fragments ( new FeatGen<OBLazMol,OBLinFrag,bool>(alphabet_file,structures.get(), out) );
+
+    OBLazMolVect* structures = new OBLazMolVect(structure_file, out); // Create structures as normal pointer
+                                                                      // Free-ed in ~FeatGen()!
+    shared_ptr<FeatGen<OBLazMol,OBLinFrag,bool> > fragments ( new FeatGen<OBLazMol,OBLinFrag,bool>(alphabet_file,structures, out) );
 
     fragments->generate_linfrag();
 

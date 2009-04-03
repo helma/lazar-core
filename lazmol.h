@@ -1162,7 +1162,10 @@ void FeatMol<MolType,FeatureType,ActivityType>::remove() {
     available_bak = available;
 
     for (cur_a = available.begin(); cur_a != available.end(); cur_a++) {
+
+        // DEBUG AM
         cur_a->second = false;
+
     }
 }
 

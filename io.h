@@ -49,7 +49,9 @@ private:
     shared_ptr<ServerSocket> socket;
 
 public:
-    SocketOut(ServerSocket * socket): socket(socket) {} ;
+    SocketOut(){};
+    SocketOut(ServerSocket * socket): socket(socket){};
+    void SetSocket(ServerSocket* _socket) { socket.reset( _socket ); };
     void print();
     void print_err();
 };

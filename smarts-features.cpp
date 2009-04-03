@@ -23,8 +23,6 @@
 
 using namespace std;
 
-float sig_thr=0;
-
 //! match SMARTS features
 int main(int argc, char *argv[]) {
 
