@@ -24,7 +24,7 @@
 #include "activity-db.h"
 #include "model.h"
 #include "time.h"
-#include "fminer.h"
+/*#include "fminer.h"*/
 
 using namespace std;
 using namespace OpenBabel;

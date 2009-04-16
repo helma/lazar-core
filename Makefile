@@ -13,7 +13,7 @@ OBJ += $(SERVER_OBJ)
 
 CC            = g++
 #CXXFLAGS      = -g -O2 -I/usr/include/openbabel-2.0/ -I../R-2.8.0/include/ -I../gsl-1.9/bin/include/ -Wall
-INCLUDE       = -I/usr/local/include/openbabel-2.0/ -I/usr/local/include/fminer -I/usr/share/R/include
+INCLUDE       = -I/usr/local/include/openbabel-2.0/ -I/usr/share/R/include
 CXXFLAGS      = -g $(INCLUDE) -Wall -fPIC
 LIBS	      = -lm -ldl -lopenbabel -lgslcblas -lgsl -lRblas -lRlapack -lR 
 LDFLAGS       = -L/usr/local/lib
@@ -21,7 +21,7 @@ LDFLAGS       = -L/usr/local/lib
 #RPATH         = -Wl,-rpath=/home/am/validations/libfminer
 SWIG          = swig
 SWIGFLAGS     = -c++ -ruby
-RUBY_INC      = -I/usr/lib/ruby/1.8/i486-linux/
+RUBY_INC      = -I/usr/local/lib/ruby/1.8/i686-linux/
 
 %.cxx: %.i
 	$(SWIG) $(SWIGFLAGS) -o $@ $^

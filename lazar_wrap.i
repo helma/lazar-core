@@ -33,6 +33,10 @@ shared_ptr<Out> getSocketOut() {
     shared_ptr<Out> out (new SocketOut());
     return out;
 };
+shared_ptr<Out> getStringStreamOut() {
+    shared_ptr<Out> out (new StringStreamOut());
+    return out;
+};
 shared_ptr<FeatMol <OBLazMol, ClassFeat, bool> > getClassMol (string smiles, shared_ptr<Out> out) {
     shared_ptr<FeatMol <OBLazMol, ClassFeat, bool> > cur_mol ( new FeatMol<OBLazMol, ClassFeat, bool>(0,"test structure",smiles,out) );
     return cur_mol;

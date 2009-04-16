@@ -39,3 +39,17 @@ void SocketOut::print_err() {
     this->str("");
 };
 
+void StringStreamOut::print() {
+		*data << this->str();
+    this->str("");
+};
+
+void StringStreamOut::print_err() {
+    cerr << this->str();
+    this->str("");
+};
+
+string StringStreamOut::get() {
+    return data->str();
+};
+

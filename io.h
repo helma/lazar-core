@@ -55,4 +55,16 @@ public:
     void print();
     void print_err();
 };
+
+class StringStreamOut: public Out {
+
+private:
+    shared_ptr<ostringstream> data;
+
+public:
+    StringStreamOut(){};
+    void print();
+    void print_err();
+    string get();
+};
 #endif
