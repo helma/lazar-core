@@ -114,6 +114,8 @@ public:
     //! set the output object (e.g. switch between console and socket)
     void set_output(shared_ptr<Out> newout);
 
+    string get_yaml();
+
     //! match features (SMARTS) from a file
     void match_file_smarts(char * file);
 
@@ -516,6 +518,11 @@ void Predictor<MolType, FeatureType, ActivityType>::set_output(shared_ptr<Out> n
     }
 
 };
+
+template <class MolType, class FeatureType, class ActivityType>
+string Predictor<MolType, FeatureType, ActivityType>::get_yaml() {
+  return out->get_yaml();
+}
 
 /*
 template <class MolType, class FeatureType, class ActivityType>

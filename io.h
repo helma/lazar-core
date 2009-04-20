@@ -23,7 +23,6 @@
 #include <iostream>
 #include <sstream>
 
-#include "ServerSocket.h"		// socket library
 #include "boost/smart_ptr.hpp"
 
 using namespace std;
@@ -34,24 +33,12 @@ public:
     Out() {};
     virtual void print() {};
     virtual void print_err() {};
+    string get_yaml() { return ""; };
 };
 
 class ConsoleOut: public Out {
 public:
     ConsoleOut() {};
-    void print();
-    void print_err();
-};
-
-class SocketOut: public Out {
-
-private:
-    shared_ptr<ServerSocket> socket;
-
-public:
-    SocketOut(){};
-    SocketOut(ServerSocket * socket): socket(socket){};
-    void SetSocket(ServerSocket* _socket) { socket.reset( _socket ); };
     void print();
     void print_err();
 };
@@ -62,9 +49,12 @@ private:
     shared_ptr<ostringstream> data;
 
 public:
-    StringStreamOut(){};
+    StringStreamOut(){
+        cerr << "Initializing ss" << endl;
+        data.reset(new ostringstream());
+    };
     void print();
     void print_err();
-    string get();
+    string get_yaml();
 };
 #endif

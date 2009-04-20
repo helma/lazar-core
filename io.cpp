@@ -29,16 +29,6 @@ void ConsoleOut::print_err() {
     this->str("");
 };
 
-void SocketOut::print() {
-    *socket << this->str();
-    this->str("");
-};
-
-void SocketOut::print_err() {
-    cerr << this->str();
-    this->str("");
-};
-
 void StringStreamOut::print() {
 		*data << this->str();
     this->str("");
@@ -49,7 +39,7 @@ void StringStreamOut::print_err() {
     this->str("");
 };
 
-string StringStreamOut::get() {
+string StringStreamOut::get_yaml() {
     return data->str();
 };
 

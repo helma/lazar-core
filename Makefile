@@ -7,9 +7,10 @@ TOOLS = chisq-filter #pcprop
 INSTALLDIR = /usr/local/bin
 
 OBJ = feature.o lazmol.o io.o rutils.o
-HEADERS = lazmolvect.h feature.h lazmol.h io.h ServerSocket.h Socket.h feature-generation.h rutils.h
-SERVER_OBJ = ServerSocket.o Socket.o
-OBJ += $(SERVER_OBJ)
+#HEADERS = lazmolvect.h feature.h lazmol.h io.h ServerSocket.h Socket.h feature-generation.h rutils.h
+HEADERS = lazmolvect.h feature.h lazmol.h io.h feature-generation.h rutils.h #ServerSocket.h Socket.h 
+#SERVER_OBJ = ServerSocket.o Socket.o
+#OBJ += $(SERVER_OBJ)
 
 CC            = g++
 #CXXFLAGS      = -g -O2 -I/usr/include/openbabel-2.0/ -I../R-2.8.0/include/ -I../gsl-1.9/bin/include/ -Wall
@@ -82,4 +83,4 @@ testset.o: feature-generation.h
 
 .PHONY:
 clean:
-	-rm -rf *.o $(PROGRAM) $(TOOLS) $(FEAT_GEN)
+	-rm -rf *.o $(PROGRAM) $(TOOLS) $(FEAT_GEN) lazar.so

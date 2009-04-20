@@ -29,10 +29,6 @@ shared_ptr<Out> getConsoleOut() {
     shared_ptr<Out> out (new ConsoleOut());
     return out;
 };
-shared_ptr<Out> getSocketOut() {
-    shared_ptr<Out> out (new SocketOut());
-    return out;
-};
 shared_ptr<Out> getStringStreamOut() {
     shared_ptr<Out> out (new StringStreamOut());
     return out;
@@ -41,6 +37,11 @@ shared_ptr<FeatMol <OBLazMol, ClassFeat, bool> > getClassMol (string smiles, sha
     shared_ptr<FeatMol <OBLazMol, ClassFeat, bool> > cur_mol ( new FeatMol<OBLazMol, ClassFeat, bool>(0,"test structure",smiles,out) );
     return cur_mol;
 };
+
+string get_yaml(shared_ptr<StringStreamOut> out) {
+    return out->get_yaml();
+}
+
 %}
 # "END INLINE SECTION"
 
@@ -70,6 +71,7 @@ class Predictor {
         # "predict the activity act for the query structure"
         void knn_predict(shared_ptr<FeatMol < MolType, FeatureType, ActivityType > > test, string act, bool verbose);
         void print_neighbors(string act);
+        string get_yaml();
         
 };
 %template(ClassificationPredictor) Predictor<OBLazMol, ClassFeat, bool>;
