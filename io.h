@@ -33,7 +33,7 @@ public:
     Out() {};
     virtual void print() {};
     virtual void print_err() {};
-    string get_yaml() { return ""; };
+    virtual string get_yaml() { return ""; };
 };
 
 class ConsoleOut: public Out {
@@ -43,16 +43,13 @@ public:
     void print_err();
 };
 
-class StringStreamOut: public Out {
+class StringOut: public Out {
 
 private:
-    shared_ptr<ostringstream> data;
+		string data;
 
 public:
-    StringStreamOut(){
-        cerr << "Initializing ss" << endl;
-        data.reset(new ostringstream());
-    };
+    StringOut() { data = ""; };
     void print();
     void print_err();
     string get_yaml();

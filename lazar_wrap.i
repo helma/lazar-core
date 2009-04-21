@@ -29,19 +29,14 @@ shared_ptr<Out> getConsoleOut() {
     shared_ptr<Out> out (new ConsoleOut());
     return out;
 };
-shared_ptr<Out> getStringStreamOut() {
-    shared_ptr<Out> out (new StringStreamOut());
+shared_ptr<Out> getStringOut() {
+    shared_ptr<Out> out (new StringOut());
     return out;
 };
 shared_ptr<FeatMol <OBLazMol, ClassFeat, bool> > getClassMol (string smiles, shared_ptr<Out> out) {
     shared_ptr<FeatMol <OBLazMol, ClassFeat, bool> > cur_mol ( new FeatMol<OBLazMol, ClassFeat, bool>(0,"test structure",smiles,out) );
     return cur_mol;
 };
-
-string get_yaml(shared_ptr<StringStreamOut> out) {
-    return out->get_yaml();
-}
-
 %}
 # "END INLINE SECTION"
 
@@ -72,7 +67,11 @@ class Predictor {
         void knn_predict(shared_ptr<FeatMol < MolType, FeatureType, ActivityType > > test, string act, bool verbose);
         void print_neighbors(string act);
         string get_yaml();
-        
 };
 %template(ClassificationPredictor) Predictor<OBLazMol, ClassFeat, bool>;
+
+class StringOut {
+    public:
+        string get_yaml();
+};
 # "END WRAPPING SECTION"

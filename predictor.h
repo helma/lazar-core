@@ -22,9 +22,9 @@
 #include "boost/smart_ptr.hpp"
 #include "feature-generation.h"
 #include "activity-db.h"
+/*#include "fminer.h"*/
 #include "model.h"
 #include "time.h"
-/*#include "fminer.h"*/
 
 using namespace std;
 using namespace OpenBabel;
@@ -63,8 +63,8 @@ private:
     char* a_file;
     //! make leave-one-out crossvalidation?
     bool loo;
-    //! output object
-    shared_ptr<Out> out;
+		//! output object
+		shared_ptr<Out> out;
 
 public:
 
@@ -521,7 +521,7 @@ void Predictor<MolType, FeatureType, ActivityType>::set_output(shared_ptr<Out> n
 
 template <class MolType, class FeatureType, class ActivityType>
 string Predictor<MolType, FeatureType, ActivityType>::get_yaml() {
-  return out->get_yaml();
+  return this->out->get_yaml();
 }
 
 /*

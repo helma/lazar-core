@@ -29,17 +29,17 @@ void ConsoleOut::print_err() {
     this->str("");
 };
 
-void StringStreamOut::print() {
-		*data << this->str();
+void StringOut::print() {
+		data += this->str();
     this->str("");
 };
 
-void StringStreamOut::print_err() {
+void StringOut::print_err() {
     cerr << this->str();
     this->str("");
 };
 
-string StringStreamOut::get_yaml() {
-    return data->str();
+string StringOut::get_yaml() {
+    return data;
 };
 
