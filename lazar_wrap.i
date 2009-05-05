@@ -14,9 +14,9 @@ using namespace std;
 
 
 # "BEGIN GLOBAL VARIABLES"
-float sig_thr;
-bool kernel;
-bool quantitative;
+extern float sig_thr;
+extern bool kernel;
+extern bool quantitative;
 # "END GLOBAL VARIABLES"
 
 
@@ -69,6 +69,7 @@ class Predictor {
         string get_yaml();
 };
 %template(ClassificationPredictor) Predictor<OBLazMol, ClassFeat, bool>;
+%template(RegressionPredictor) Predictor<OBLazMol, RegrFeat, float>;
 
 class StringOut {
     public:

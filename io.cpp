@@ -40,6 +40,8 @@ void StringOut::print_err() {
 };
 
 string StringOut::get_yaml() {
-    return data;
+		string old_data = data;
+		data = "";
+    return old_data;
 };
 

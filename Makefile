@@ -2,24 +2,19 @@
 SHELL=/bin/bash
 
 PROGRAM = lazar 
-FEAT_GEN = rex linfrag smarts-features
-TOOLS = chisq-filter #pcprop
+FEAT_GEN = linfrag #rex smarts-features
+#TOOLS = chisq-filter pcprop
 INSTALLDIR = /usr/local/bin
 
 OBJ = feature.o lazmol.o io.o rutils.o
-#HEADERS = lazmolvect.h feature.h lazmol.h io.h ServerSocket.h Socket.h feature-generation.h rutils.h
 HEADERS = lazmolvect.h feature.h lazmol.h io.h feature-generation.h rutils.h #ServerSocket.h Socket.h 
-#SERVER_OBJ = ServerSocket.o Socket.o
-#OBJ += $(SERVER_OBJ)
 
 CC            = g++
-#CXXFLAGS      = -g -O2 -I/usr/include/openbabel-2.0/ -I../R-2.8.0/include/ -I../gsl-1.9/bin/include/ -Wall
 INCLUDE       = -I/usr/local/include/openbabel-2.0/ -I/usr/share/R/include
+#CXXFLAGS      = -O3 $(INCLUDE) -Wall -fPIC
 CXXFLAGS      = -g $(INCLUDE) -Wall -fPIC
 LIBS	      = -lm -ldl -lopenbabel -lgslcblas -lgsl -lRblas -lRlapack -lR 
 LDFLAGS       = -L/usr/local/lib
-#LDFLAGS       = -L../gsl-1.9/bin/lib -L../R-2.8.0/lib -L../R-2.8.0/bin/lib64/R/modules/
-#RPATH         = -Wl,-rpath=/home/am/validations/libfminer
 SWIG          = swig
 SWIGFLAGS     = -c++ -ruby
 RUBY_INC      = -I/usr/local/lib/ruby/1.8/i686-linux/
@@ -32,7 +27,7 @@ lazar.so: lazar_wrap.o $(OBJ)
 	$(CC) -shared $(CXXFLAGS) $(LIBS) $(LDFLAGS) $^ /usr/local/lib/libopenbabel.so /usr/lib/libgsl.so -o $@
 
 .PHONY:
-all: $(PROGRAM) $(FEAT_GEN) $(TOOLS)
+all: $(PROGRAM) $(FEAT_GEN) lazar.so #$(TOOLS)
 
 .PHONY:
 doc: Doxyfile
