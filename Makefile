@@ -10,13 +10,16 @@ OBJ = feature.o lazmol.o io.o rutils.o
 HEADERS = lazmolvect.h feature.h lazmol.h io.h feature-generation.h rutils.h 
 
 CC            = g++
-INCLUDE       = -I/usr/local/include/openbabel-2.0/ -I/usr/local/lib64/R/include/
+INCLUDE       = -I/usr/local/include/openbabel-2.0/ -I/usr/local/lib/R/include/
+#INCLUDE       = -I/usr/local/include/openbabel-2.0/ -I/usr/local/lib64/R/include/
 CXXFLAGS      = -O3 $(INCLUDE) -Wall -fPIC
 LIBS	        = -lm -ldl -lopenbabel -lgslcblas -lgsl -lRblas -lRlapack -lR 
-LDFLAGS       = -L/usr/local/lib -L/usr/local/lib64/R/lib
+LDFLAGS       = -L/usr/local/lib -L/usr/local/lib/R/lib
+#LDFLAGS       = -L/usr/local/lib -L/usr/local/lib64/R/lib
 SWIG          = swig
 SWIGFLAGS     = -c++ -ruby
-RUBY_INC      = -I/opt/ruby-enterprise-1.8.6-20090520/lib/ruby/1.8/x86_64-linux
+RUBY_INC      = -I/usr/local/lib/ruby/1.8/i686-linux/
+#RUBY_INC      = -I/opt/ruby-enterprise-1.8.6-20090520/lib/ruby/1.8/x86_64-linux
 
 %.cxx: %.i
 	$(SWIG) $(SWIGFLAGS) -o $@ $^

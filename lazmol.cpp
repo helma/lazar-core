@@ -79,7 +79,7 @@ OBLazMol::OBLazMol(int nr, string new_descr, string new_smiles, shared_ptr<Out> 
         out->print_err();
     }
     else {
-        mol.SetAromaticPerceived();
+//        mol.SetAromaticPerceived(); // do not use this - it turns aromaticity perception *off*
 //          FOR_BONDS_OF_MOL (bond, mol)
 //        bond->UnsetAromatic();
 //          FOR_ATOMS_OF_MOL (atom, mol)
